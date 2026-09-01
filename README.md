@@ -31,10 +31,14 @@ rtl/
   sensor_pe.v                센서모델 PE 1개 — 룩업+누적, 곱셈기 없음
   table_mem.v                log(확률) 테이블 BRAM, 싱글포트 (.hex 로드)
   table_mem_dp.v              위와 같은 테이블의 듀얼포트 버전 — PE 2개가 동시에 읽음
+  addr_gen.v                  r*301+d 주소를 시프트+덧셈만으로 계산(곱셈기 없음)
 tb/
   tb_sensor_pe.v              PE 1개, 파이썬 정답지와 대조하는 자가검증 테스트벤치 (60빔)
   tb_sensor_pe_parallel.v     PE 2개가 듀얼포트 메모리를 공유하며 파티클 2개를 동시 처리하는지 검증
   tb_sensor_pe_x4.v           PE 4개(테이블 복사본 2개, generate로 인스턴스화), 파티클 4개 동시 처리 검증
+  tb_sensor_pe_seq4.v         PE 1개로 파티클 4개를 순서대로(대조군) — 병렬 대비 속도 비교용
+  tb_addr_gen.v                addr_gen 단독 검증(손으로 계산한 값과 대조)
+  tb_sensor_pe_addrgen.v      addr_gen을 실제로 PE 앞단에 연결 — 주소를 하드웨어가 직접 계산하는 전체 파이프라인 검증
 sim/
   sensor_model_log_q5_8.hex   룩업테이블 데이터
   testvec_addrs.hex           테스트용 주소 목록 (파티클 5개 x 빔 60개)
@@ -70,10 +74,11 @@ gtkwave sim/tb_sensor_pe_parallel.vcd   # 병렬 PE 파형
   Quartus Prime Lite — 용량이 커서 보드 정해지기 전엔 설치 안 함
 - VS Code + "Verilog-HDL/SystemVerilog" 확장(Remote-WSL 창에서 별도 설치 필요)
 
-## 현재 상태 (2026-09-01)
+## 현재 상태 (2026-09-02)
 
-센서모델 PE — **실제 스펙(빔 60개)으로 검증 완료**, **PE 2개 병렬(듀얼포트 메모리
-공유)**, **PE 4개 병렬(테이블 복사본 2개)**까지 전부 검증 완료. PE 2개일 때와
-4개일 때 총 소요시간이 둘 다 640ns로 동일 — 파티클 개수가 늘어도 처리 시간이
-그대로라는 게, 진짜 병렬 하드웨어가 하는 일 그 자체임을 확인함. 다음은 레이마칭
-(v2). 상세 진행 기록(무한루프 버그 포함)은 [`progress.md`](progress.md).
+센서모델 PE — 실제 스펙(빔 60개) 검증, PE 2개/4개 병렬화(4배 속도향상을 순차
+대조군과 직접 비교해 실측 확정: 2560ns → 640ns), 그리고 **주소생성(`r*301+d`)까지
+곱셈기 없이 하드웨어가 직접 계산**하는 전체 파이프라인 검증까지 완료 — 이제
+테스트벤치가 미리 계산해서 떠먹여주는 값이 하나도 없다. v1(센서모델 가속기)의
+핵심 요소가 다 갖춰진 상태. 다음은 레이마칭(v2). 상세 진행 기록은
+[`progress.md`](progress.md).
