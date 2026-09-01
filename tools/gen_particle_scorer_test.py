@@ -23,7 +23,8 @@ from gen_track_map import (GRID_W, GRID_H, FRAC_W as RM_FRAC_W, load_occupancy,
 
 # 파티클마다 다른 자유공간을 찾을 검색 시작점 — 서로 확실히 떨어진 지점으로 골라서
 # "같은 자리 두 번"이 아니라 진짜 다른 파티클임을 보여준다.
-SEARCH_CENTERS = [(80, 200), (40, 80), (120, 320), (140, 150)]  # (y,x) 순서 — 아래 루프의 언패킹과 맞춤
+SEARCH_CENTERS = [(80, 200), (40, 80), (120, 320), (140, 150),
+                  (100, 250), (30, 350), (150, 200), (60, 20)]  # (y,x) 순서 — 아래 루프의 언패킹과 맞춤
 
 
 def find_free_point(occ, y_start, x_start):

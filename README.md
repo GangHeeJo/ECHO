@@ -4,23 +4,91 @@ ZERO(F1TENTH)의 `particle_filter` 위치추정 연산을 위한 FPGA 가속기 
 이번 학기 디지털 회로설계 수업과 연계해서 진행하는 개인 프로젝트 — ZERO 팀
 레포(`~/zero/src`)와는 완전히 별개, git 미포함.
 
-## 왜 이걸 만드는가
+**현재 상태 (2026-09-02): v1(센서모델)·v2(레이마칭, EDT 최적화)·v3(결합) 완료,
+Vivado 합성으로 실측까지 마쳤고, arbiter 기반 BRAM 공유로 파티클을 1→8개까지
+BRAM 추가비용 0으로 늘리는 데 성공했다(합성 3회 전부 BRAM 39/50, 동일 칩).**
 
-ZERO의 particle_filter는 매 라이다 스캔(40Hz)마다 파티클 하나당 라이다 빔 60개를
-비교해서 위치 후보의 점수를 매긴다(레이마칭 + 센서모델 평가). 이 반복연산이 실제로
-얼마나 비싼지, 어디가 진짜 병목인지 실측까지 마쳤다 — 자세한 근거·수치는
-[`docs/problem_statement.md`](docs/problem_statement.md) 참고.
+## 핵심 아이디어
 
-**v1 타깃: 센서모델 평가.** 레이마칭이 실제로는 더 큰 비중(90%+)을 차지하지만,
-첫 RTL 프로젝트로 난이도가 적당하고 기존 문헌(Bernardi et al., DATE 2022)이 안
-건드린 부분이라 여기서 시작했다. **v2: 레이마칭** — v1 완주 후 착수, 진행 중.
+원본 소프트웨어는 파티클 하나의 점수를 "라이다 빔 60개의 확률을 곱해서"
+계산한다. 이 프로젝트는 그 계산 전체(레이마칭 + 센서모델 평가)를 **곱셈기
+없이** RTL로 옮긴다 — 확률을 log 영역에 저장해 곱을 덧셈으로 바꾸고
+(`sensor_pe`), 주소 계산은 시프트-덧셈으로(`addr_gen`), 레이마칭의 가변
+스텝은 배럴 시프터로(`ray_march_edt`) 대체한다.
 
-## 핵심 설계 아이디어
+```
+파티클 위치 + LiDAR 관측(r_obs) × 60빔
+        │
+        ▼
+  ray_march_edt   거리장(EDT) 기반, 곱셈기 없음 → 기대거리 d
+        │
+        ▼
+  addr_gen        (r_obs, d) → 테이블 주소, 시프트-덧셈만
+        │
+        ▼
+  arbiter2/4/8    전국AI반도체경진대회 프로젝트 재사용 → 공유 테이블 포트 승인
+        │
+        ▼
+  table_mem       센서모델 log-확률 BRAM — 파티클이 몇 개든 물리적으로 1개
+        │
+        ▼
+  sensor_pe       룩업값 누적(곱셈기 없음) → 파티클 log-weight
+```
 
-원본 소프트웨어는 파티클 하나의 점수를 "확률 60개를 곱해서" 계산한다. 고정소수점
-하드웨어에서 곱셈을 반복하면 언더플로우가 심해지므로, **룩업테이블 자체를
-log(확률)로 저장**해서 하드웨어는 매 빔마다 **룩업 + 덧셈만** 하면 되게 설계했다
-(곱셈기 불필요). squash_factor 거듭제곱도 log 영역에서는 상수곱이라 그대로 살아남는다.
+## 수치 결과 (Vivado ML Standard, Arty A7-35T `xc7a35ticsg324-1L`, 무료 라이선스 대상 — 보드 없이 합성만)
+
+| 구성 | BRAM(50개 중) | LUT(20800개 중) | DSP | WNS(100MHz 제약) | 병렬 지연시간(빔8개 기준) |
+|---|---|---|---|---|---|
+| 파티클 1개(테이블 전용 소유) | 39 (78%) | 6.40% | 0 | -2.594ns(≈79MHz) | — |
+| 독립 테이블로 2개 이상 병렬 | **156(2개분) — 예산초과, 합성 실패** | — | — | — | 1520 ns(시뮬만, 이 칩엔 못 들어감) |
+| `arbiter2`로 2개가 테이블 공유 | 39 (78%, 동일) | 13.07% | 0 | -2.594ns(동일) | 1310 ns |
+| `arbiter4`로 4개가 테이블 공유 | 39 (78%, 동일) | 25.88% | 0 | -2.594ns(동일) | 1540 ns(+1.3%) |
+| `arbiter8`로 8개가 테이블 공유 | **39 (78%, 동일)** | 51.77% | 0 | -2.438ns(거의 동일) | **1660 ns** |
+
+DSP(하드 곱셈기)는 다섯 구성 전부 0개 — "곱셈기 없는 설계" 원칙이 합성
+결과로 실증됨. **BRAM은 1→8개 전부 39/50으로 동일** — 병목이 처음부터 끝까지
+테이블 하나였고, 중재로 완전히 해소됨. 타이밍은 1~4개는 WNS=-2.594ns로
+완전히 같고, 8개는 -2.438ns로 소폭 다름(정직하게 기록 — "완전 동일"이라고
+단정하지 않음, 크리티컬 패스가 여전히 `ray_march_edt`의 배럴 시프터인지는
+아직 최악경로 리포트로 재확인 안 함). LUT는 8개에서 51.77%까지 올라와 더
+늘리면 LUT가 먼저 병목이 될 가능성이 있음. 자세한 실패 원인(왜 진짜
+듀얼포트 공유는 안 통했는지)과 전체 로그는 [`progress.md`](progress.md)의
+2026-09-02 항목 참고.
+
+## 빠른 시작
+
+시뮬레이션만이면 지도 파일 없이 바로 됨 — `sim/`에 필요한 `.hex`가 전부
+커밋돼 있음:
+
+```bash
+cd ~/echo
+iverilog -o sim/tb_particle_scorer_quad_arb.vvp \
+  rtl/ray_march_edt.v rtl/addr_gen.v rtl/table_mem.v rtl/sensor_pe.v \
+  rtl/arbiter4.v rtl/particle_scorer_arb.v rtl/particle_scorer_quad_arb.v \
+  tb/tb_particle_scorer_quad_arb.v
+cd sim && vvp tb_particle_scorer_quad_arb.vvp   # 파티클 4개 다 PASS 나와야 정상
+```
+
+**테스트 벡터를 처음부터 재현**하려면(선택, 이미 만들어진 `.hex`를 그냥 쓸
+거면 필요 없음) `tools/gen_particle_scorer_test.py`를 돌리면 되는데, 이
+스크립트는 ZERO 팀 레포의 지도 파일(`~/zero/src/track_assets/maps/changwon/map.pgm`)
+을 하드코딩된 절대경로로 읽는다 — 이 레포만 단독으로 clone해서는 못 돌리고,
+`~/zero/src`가 옆에 있어야 함(이 프로젝트 자체는 `~/zero/src`와 git 분리돼
+있지만, 지도 데이터는 그쪽이 원본이라 재사용). scipy 필요(`compute_edt_shift`).
+
+```bash
+cd ~/echo/sim
+python3 ../tools/gen_particle_scorer_test.py
+```
+
+**합성**은 Vivado가 필요(무료 ML Standard Edition, Artix-7/Zynq-7000 계열은
+라이선스 없이 지원). ⚠️ 작업 폴더 경로에 한글이 있으면 Vivado가 크래시하니
+(`progress.md` 참고) 순수 영문 경로에서 실행할 것 — `rtl/*.v` + `sim/*.hex` +
+`synth/*.tcl,*.xdc`를 한 폴더에 모은 뒤:
+
+```
+vivado -mode batch -source synth_quad_arb.tcl -log vivado_quad_arb.log
+```
 
 ## 구조
 
@@ -34,15 +102,15 @@ rtl/
   addr_gen.v                  r*301+d 주소를 시프트+덧셈만으로 계산(곱셈기 없음)
   ray_march.v                 [v2.0] 방향벡터 따라 격자 지도를 걸어 벽까지 거리 재기 (20x20 테스트지도, 2차원 배열 인덱싱)
   ray_march_bram.v             [v2.1] 위와 같은 알고리즘, 실제 changwon 트랙(400x160칸) — 평면(flat) BRAM 주소 계산으로 교체
+  ray_march_edt.v               [v2.2] 거리장(EDT) 기반 마칭 — 빈 공간에서 2^k칸씩 성큼성큼(배럴 시프터, 곱셈기 없음)
   particle_scorer.v            [v3] v1+v2 결합 — 빔마다 레이마칭으로 기대거리 구하고 센서모델로 채점, 파티클 전체 점수까지
   particle_scorer_shared.v      [v3.1, 폐기] 테이블을 외부 포트로 뺀 버전 — table_mem_dp로 진짜 듀얼포트 공유 시도, 합성기가 통째 복사해 BRAM 2배로 실패
   particle_scorer_pair.v        [v3.1, 폐기] particle_scorer_shared 2개 + table_mem_dp — 합성 실패(BRAM 156/100)로 폐기, 코드는 실패 사례로 보존
   particle_scorer_arb.v         [v3.2] particle_scorer_shared를 중재(arbiter) 방식으로 재설계 — 공유 테이블 포트에 req/gnt 인터페이스 추가
   particle_scorer_pair_arb.v    [v3.2] particle_scorer_arb 2개가 arbiter2(전국AI반도체경진대회 프로젝트 재사용)로 single-port table_mem 하나를 시분할 — BRAM 추가비용 0으로 합성 성공
-  arbiter2.v                    전국AI반도체경진대회 프로젝트에서 그대로 재사용 — 2-input round-robin 중재기(안 건드림)
   particle_scorer_quad_arb.v    [v3.3] particle_scorer_arb 4개가 arbiter4(같은 프로젝트 재사용)로 single-port table_mem 하나를 시분할 — BRAM 39/50 그대로 유지
-  arbiter4.v                     전국AI반도체경진대회 프로젝트에서 그대로 재사용 — 4-input round-robin 중재기(안 건드림)
-  ray_march_edt.v               [v2.2] 거리장(EDT) 기반 마칭 — 빈 공간에서 2^k칸씩 성큼성큼(배럴 시프터, 곱셈기 없음)
+  particle_scorer_oct_arb.v     [v3.4] particle_scorer_arb 8개 + arbiter8 — 기능검증 8/8 PASS(1660ns), 합성도 완료(BRAM 39/50 동일, LUT 51.77%)
+  arbiter2.v / arbiter4.v / arbiter8.v   전국AI반도체경진대회 프로젝트에서 그대로 재사용 — round-robin 중재기(안 건드림)
 tb/
   tb_sensor_pe.v              PE 1개, 파이썬 정답지와 대조하는 자가검증 테스트벤치 (60빔)
   tb_sensor_pe_parallel.v     PE 2개가 듀얼포트 메모리를 공유하며 파티클 2개를 동시 처리하는지 검증
@@ -52,51 +120,56 @@ tb/
   tb_sensor_pe_addrgen.v      addr_gen을 실제로 PE 앞단에 연결 — 주소를 하드웨어가 직접 계산하는 전체 파이프라인 검증
   tb_ray_march.v               레이마칭 v2.0 — 벽/경계/대각선/최대거리 4가지 케이스 검증
   tb_ray_march_bram.v          레이마칭 v2.1 — 실제 changwon 트랙에서 6가지 방향 검증
+  tb_ray_march_edt.v            거리장 기반 마칭 검증 — 같은 6케이스에서 기존 대비 클럭 수 직접 대조(최대 6배 이상 감소)
   tb_particle_scorer.v         v3 — 파티클 1개, 빔 8개, 레이마칭+센서모델 전체 파이프라인 검증
   tb_particle_scorer_parallel.v v3 병렬 — particle_scorer 2개 동시 처리, 소요시간이 단일 처리와 동일함을 확인
   tb_particle_scorer_x4.v       v3 4배 병렬 — particle_scorer 4개 동시 처리(1520ns, 단일 처리와 비슷)
-  tb_ray_march_edt.v            거리장 기반 마칭 검증 — 같은 6케이스에서 기존 대비 클럭 수 직접 대조(최대 6배 이상 감소)
   tb_particle_scorer_pair.v     [폐기] particle_scorer_pair(진짜 듀얼포트 공유) 기능검증 — 시뮬은 통과하나 합성이 실패해 폐기된 경로
   tb_particle_scorer_pair_arb.v v3.2 — particle_scorer_pair_arb(중재 공유) 기능검증, 파티클 2개 다 PASS
   tb_particle_scorer_quad_arb.v v3.3 — particle_scorer_quad_arb(4-way 중재 공유) 기능검증, 파티클 4개 다 PASS(1540ns)
+  tb_particle_scorer_oct_arb.v  v3.4 — particle_scorer_oct_arb(8-way 중재 공유) 기능검증, 파티클 8개 다 PASS(1660ns)
 tools/
   gen_track_map.py             changwon map.pgm -> 지도 .hex + 파이썬으로 미리 계산한 테스트 시나리오 정답
-  gen_particle_scorer_test.py  particle_scorer 통합 테스트용 정답지(위 두 스크립트를 그대로 import해서 재사용)
+  gen_sensor_model.py          ZERO 실제 센서모델 수식을 이식 — 룩업테이블(.hex)과 RTL 테스트벡터 생성
+  gen_particle_scorer_test.py  particle_scorer 통합 테스트용 정답지(위 두 스크립트를 그대로 import해서 재사용) — 재현 방법은 위 "빠른 시작" 참고
 synth/
   constraints.xdc              100MHz 클럭 제약(합성 타이밍 분석용)
   synth_v1_sanity.tcl          가장 작은 모듈(sensor_pe)로 Vivado 배치모드 파이프라인 자체를 검증
-  synth_v3_timed.tcl           particle_scorer 실제 합성(Arty A7-35T 타깃) + 타이밍 리포트
-  util_v3_timed.rpt            자원 사용량 실측(LUT 6.4%/FF 0.61%/BRAM 78%/DSP 0%)
-  timing_v3_timed.rpt          타이밍 서머리(실제 최대 클럭 ≈ 79MHz)
-  timing_v3_worstpath.rpt      최악 경로 상세(크리티컬 패스 = ray_march_edt 배럴 시프터)
-  synth_pair_arb.tcl            particle_scorer_pair_arb 합성(파티클 2개, 테이블 공유)
-  util_pair_arb.rpt             자원 사용량 실측(BRAM 39/50 — 파티클 1개였을 때와 동일)
-  util_pair_arb_hier.rpt        모듈별 BRAM 내역(테이블 하나가 BRAM 100% 차지 확인)
-  timing_pair_arb.rpt           타이밍(WNS=-2.594ns, 단일 버전과 동일 — 중재 로직이 크리티컬 패스 안 건드림)
-  synth_quad_arb.tcl            particle_scorer_quad_arb 합성(파티클 4개, 테이블 공유)
-  util_quad_arb.rpt             자원 사용량 실측(BRAM 39/50 — 파티클 1/2개였을 때와 동일, LUT 25.88%)
-  timing_quad_arb.rpt           타이밍(WNS=-2.594ns, 여전히 동일)
+  synth_v3_timed.tcl / util_v3_timed.rpt / timing_v3_timed.rpt / timing_v3_worstpath.rpt
+                                particle_scorer(파티클 1개) 합성+타이밍 — LUT 6.4%/FF 0.61%/BRAM 78%/DSP 0%, ≈79MHz
+  synth_pair_arb.tcl / util_pair_arb*.rpt / timing_pair_arb.rpt
+                                particle_scorer_pair_arb(파티클 2개, 테이블 공유) 합성 — BRAM 39/50 그대로
+  synth_quad_arb.tcl / util_quad_arb*.rpt / timing_quad_arb.rpt
+                                particle_scorer_quad_arb(파티클 4개, 테이블 공유) 합성 — BRAM 39/50 그대로
+  synth_oct_arb.tcl / util_oct_arb*.rpt / timing_oct_arb.rpt
+                                particle_scorer_oct_arb(파티클 8개, 테이블 공유) 합성 — BRAM 39/50 그대로, LUT 51.77%
 sim/
   sensor_model_log_q5_8.hex   룩업테이블 데이터
   testvec_addrs.hex           테스트용 주소 목록 (파티클 5개 x 빔 60개)
   testvec_expected.hex        파티클별 정답(log-weight)
-  (echo-ref/gen_sensor_model.py 산출물 — 전부 여기로 복사해서 씀)
+  particle{0..7}_*.hex        particle_scorer 계열 통합 테스트용 정답지(파티클 8개분)
+  changwon_occ.hex / changwon_edt_shift.hex  changwon 트랙 지도(점유격자 + EDT 배럴시프트값)
+  (전부 tools/의 세 스크립트 산출물 — 이미 커밋돼 있어 재생성 없이 바로 시뮬 가능)
 ```
 
-파이썬 쪽 정답지 생성기(`gen_sensor_model.py`)는 Windows
-`C:\SNU\포트폴리오\ZERO\echo-ref\`에 따로 있음 — ZERO의 실제 센서모델 수식을
-그대로 이식해서, 테이블(.hex)과 RTL 테스트벡터(.hex)를 만들어 여기 `sim/`으로 가져온다.
+## 툴체인
 
-## 빌드 & 실행
+- **시뮬레이션**: Icarus Verilog(`iverilog`/`vvp`) + GTKWave — 둘 다 설치됨
+- **합성**: Vivado ML Standard Edition(무료, Artix-7/Zynq-7000 계열은 라이선스
+  불필요) — `C:\Xilinx\Vivado\2024.1`에 설치돼 있음. 아직 실물 FPGA 보드는 없음
+  (구매 계획 없음) — 합성/타이밍/자원 리포트까지가 지금 목표.
+- VS Code + "Verilog-HDL/SystemVerilog" 확장(Remote-WSL 창에서 별도 설치 필요)
+
+## 전체 빌드 명령 (버전별)
 
 ```bash
 cd ~/echo
 
-# PE 1개, 60빔짜리 정식 스펙 검증
+# v1 — PE 1개, 60빔짜리 정식 스펙 검증
 iverilog -o sim/tb_sensor_pe.vvp rtl/table_mem.v rtl/sensor_pe.v tb/tb_sensor_pe.v
 cd sim && vvp tb_sensor_pe.vvp && cd ..
 
-# PE 2개 병렬 처리 검증 (듀얼포트 메모리 공유)
+# v1 — PE 2개 병렬 처리 검증 (듀얼포트 메모리 공유)
 iverilog -o sim/tb_sensor_pe_parallel.vvp rtl/table_mem_dp.v rtl/sensor_pe.v tb/tb_sensor_pe_parallel.v
 cd sim && vvp tb_sensor_pe_parallel.vvp && cd ..
 
@@ -104,72 +177,8 @@ gtkwave sim/tb_sensor_pe.vcd            # 단일 PE 파형
 gtkwave sim/tb_sensor_pe_parallel.vcd   # 병렬 PE 파형
 ```
 
-## 툴체인
+v3 계열(particle_scorer/pair_arb/quad_arb/oct_arb)의 정확한 `iverilog` 명령은
+각 `tb/*.v` 파일 맨 위 주석에 그대로 있음 — "빠른 시작"의 quad_arb 명령과
+같은 패턴으로 파일명만 바꾸면 됨.
 
-- **지금(v1, 보드 없이 시뮬레이션만)**: Icarus Verilog(`iverilog`/`vvp`) + GTKWave — 둘 다 설치됨
-- **나중(보드 확정되면)**: Xilinx 보드면 Vivado ML Standard, Intel/Altera 보드면
-  Quartus Prime Lite — 용량이 커서 보드 정해지기 전엔 설치 안 함
-- VS Code + "Verilog-HDL/SystemVerilog" 확장(Remote-WSL 창에서 별도 설치 필요)
-
-## 현재 상태 (2026-09-02)
-
-- **v1(센서모델) 완료**: 실제 스펙(빔 60개) 검증, PE 2개/4개 병렬화(4배 속도향상을
-  순차 대조군과 직접 비교해 실측 확정: 2560ns → 640ns), 주소생성(`r*301+d`)까지
-  곱셈기 없이 하드웨어가 직접 계산.
-- **v2(레이마칭) 완료**: 20x20 테스트지도 → 실제 changwon 트랙(400x160칸) 확장
-  (비트폭 오버플로 버그 실측으로 수정) → **거리장(EDT) 기반 최적화**(`ray_march_edt.v`,
-  가장 가까운 벽까지 안전거리를 2의 거듭제곱으로 반올림해 배럴 시프터로 한 번에
-  전진 — 곱셈기 없이 큰 보폭, 같은 6케이스에서 클럭 수 최대 6배 이상 감소).
-- **v3(v1+v2 결합) 완료**: `particle_scorer.v` — 빔마다 레이마칭으로 기대거리를
-  구하고 센서모델로 채점, 파티클 전체 점수까지. 파티클 1개 검증(`weight_o=-7441`)
-  → 2개 동시 병렬 처리 → 내부 레이마칭을 ray_march_edt(거리장 기반)로 교체(단일
-  처리 4305ns→1315ns, 약 3.3배) → **파티클 4개 동시 병렬 처리로 확장(1520ns,
-  단일 처리와 비슷한 수준 — 4배 병렬 확인)**. 이 과정에서 정답지(오라클) 버그를
-  하나 실제로 찾아 고침: 파이썬 정답지가 방향벡터(cos/sin)를 정밀 float로 마칭해서
-  구했는데, RTL은 양자화된(Q9.8) 방향벡터를 쓰므로 벽 여유가 딱 1칸 안쪽인 코너
-  케이스에서 파이썬과 RTL이 다른 칸에서 충돌을 감지해 d가 1 어긋남(파티클 2번의
-  빔 1개에서 실측) — 오라클도 RTL과 똑같이 방향벡터를 먼저 양자화한 뒤 마칭하도록
-  수정해서 해결. "소프트웨어 정답지는 하드웨어와 정확히 같은 연산 순서로 계산해야
-  한다"는 이 프로젝트의 원칙이 고정소수점 반올림뿐 아니라 기하학적 양자화에도 그대로
-  적용된 사례.
-- **첫 합성(무료 Vivado ML Standard, 보드 없이) 완료** — `synth/`. 타깃: Arty A7-35T의
-  `xc7a35ticsg324-1L`(무료 라이선스 대상 디바이스). `particle_scorer`(파티클 1개분)
-  실측 자원: **LUT 6.4%(1332/20800), FF 0.61%, BRAM 78%(39/50 RAMB36) — DSP
-  0%(0/90, 곱셈기 없는 설계가 합성 결과로 실증됨)**. **BRAM이 병목** — 이 칩엔
-  particle_scorer 1개도 빠듯하고 2개 이상 병렬은 물리적으로 불가능(78%×2>100%).
-  시뮬레이션에서 검증한 4개 병렬은 이 칩 기준으로는 더 큰 칩이나 BRAM 절약(맵
-  32비트 워드 패킹, 이미 남은 과제였음)이 있어야 실제로 넣을 수 있음 — 시뮬레이션
-  만으론 알 수 없었던 정보. 100MHz(10ns) 클럭 제약 기준 **WNS=-2.594ns 위반 →
-  실제 최대 클럭 ≈ 79MHz**, 크리티컬 패스는 `ray_march_edt`의 가변 배럴 시프터
-  (`cur_shift`만큼 dx/dy를 시프트하는 조합논리 체인, 12단 로직레벨) — 다음 최적화
-  타깃으로 확정.
-- **BRAM 병목 해결 — 파티클 2개가 테이블 하나를 공유, BRAM 추가비용 0** —
-  `particle_scorer_arb.v` + `particle_scorer_pair_arb.v`. 계층별 리포트로
-  BRAM 78% 전량이 `table_mem`(센서모델 테이블) 하나에서만 나온다는 걸 먼저
-  확정(레이마칭/주소생성/PE 자체는 BRAM 0 사용). 처음엔 `table_mem_dp.v`(진짜
-  듀얼포트)로 공유를 시도했으나 **합성기가 90601깊이 테이블의 듀얼포트
-  크로스바를 못 만들고 통째로 복사해버려 BRAM이 오히려 156/100(초과)로 실패**
-  — 시뮬레이션에서만 검증됐던 패턴이 실제 합성에선 안 통한 첫 사례. 대신
-  **다른 프로젝트(전국AI반도체경진대회, AER 이벤트 중재기 설계)의
-  `arbiter2.v`를 그대로 재사용**해서 진짜 single-port 테이블 하나를 매 클럭
-  시분할로 나눠 쓰게 재설계 — `sensor_pe`가 `valid_i` 이후 1클럭 뒤 데이터를
-  쓰는데 내부 `pend_valid` 릴레이 때문에 실제로는 승인 후 2클럭 동안 주소가
-  안정적이어야 한다는 걸 실측(첫 시도는 기능 검증 자체가 실패, `-7459`/
-  `-10357` vs 기대 `-7441`/`-6687`)으로 발견하고, 승인 후 1클럭 더 주소를
-  붙잡아두는 홀드 로직을 얹어 해결(`arbiter2.v` 원본은 안 건드림). **합성
-  실측: BRAM 39/50(78%) — 파티클 1개였을 때와 완전히 동일**, LUT
-  13.07%(2719/20800, 로직 2배+중재기), FF 0.91%, DSP 여전히 0%. 타이밍도
-  WNS=-2.594ns로 단일 버전과 동일(중재 로직이 크리티컬 패스를 악화시키지
-  않음). 중재기 자체 비용은 LUT 2개, FF 1개(거의 무료).
-- **파티클 4개로 확장 — `arbiter4.v`(같은 AER 프로젝트) 재사용, BRAM 여전히
-  동일** — `particle_scorer_quad_arb.v`. pair_arb의 홀드 로직(승인 후 1클럭
-  더 주소 유지)을 2비트 인덱스로 그대로 일반화, 4/4 기능검증 PASS(1540ns,
-  독립 테이블 4배 병렬 버전의 1520ns 대비 +1.3% — 4-way 시분할이어도 경합이
-  거의 없다는 뜻). **합성 실측: BRAM 39/50(78%) — 파티클 1개·2개 때와 완전히
-  동일**, LUT 25.88%(5384/20800, 로직 4배), FF 1.80%, DSP 여전히 0%, 타이밍도
-  WNS=-2.594ns로 동일(≈79MHz). **결론: 이 칩(XC7A35T) 하나로 파티클 1→4개를
-  BRAM 추가비용 0으로 전부 커버.** 합성 중 클라우드 백업 에이전트가 Vivado
-  내부 파일을 다시 플레이스홀더로 되돌려놔서 같은 `unimacro_verilog.tcl`
-  오류가 재발함(2회차) — 같은 워크어라운드(PowerShell로 한 번 읽어서 재-하이드레이션)로 해결, 재발 가능성 있음을 기록.
-
-상세 진행 기록은 [`progress.md`](progress.md).
+상세 진행 기록(실패 사례·디버깅 과정 포함)은 [`progress.md`](progress.md).
