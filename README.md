@@ -52,6 +52,13 @@ tb/
 tools/
   gen_track_map.py             changwon map.pgm -> 지도 .hex + 파이썬으로 미리 계산한 테스트 시나리오 정답
   gen_particle_scorer_test.py  particle_scorer 통합 테스트용 정답지(위 두 스크립트를 그대로 import해서 재사용)
+synth/
+  constraints.xdc              100MHz 클럭 제약(합성 타이밍 분석용)
+  synth_v1_sanity.tcl          가장 작은 모듈(sensor_pe)로 Vivado 배치모드 파이프라인 자체를 검증
+  synth_v3_timed.tcl           particle_scorer 실제 합성(Arty A7-35T 타깃) + 타이밍 리포트
+  util_v3_timed.rpt            자원 사용량 실측(LUT 6.4%/FF 0.61%/BRAM 78%/DSP 0%)
+  timing_v3_timed.rpt          타이밍 서머리(실제 최대 클럭 ≈ 79MHz)
+  timing_v3_worstpath.rpt      최악 경로 상세(크리티컬 패스 = ray_march_edt 배럴 시프터)
 sim/
   sensor_model_log_q5_8.hex   룩업테이블 데이터
   testvec_addrs.hex           테스트용 주소 목록 (파티클 5개 x 빔 60개)
@@ -108,5 +115,16 @@ gtkwave sim/tb_sensor_pe_parallel.vcd   # 병렬 PE 파형
   수정해서 해결. "소프트웨어 정답지는 하드웨어와 정확히 같은 연산 순서로 계산해야
   한다"는 이 프로젝트의 원칙이 고정소수점 반올림뿐 아니라 기하학적 양자화에도 그대로
   적용된 사례.
+- **첫 합성(무료 Vivado ML Standard, 보드 없이) 완료** — `synth/`. 타깃: Arty A7-35T의
+  `xc7a35ticsg324-1L`(무료 라이선스 대상 디바이스). `particle_scorer`(파티클 1개분)
+  실측 자원: **LUT 6.4%(1332/20800), FF 0.61%, BRAM 78%(39/50 RAMB36) — DSP
+  0%(0/90, 곱셈기 없는 설계가 합성 결과로 실증됨)**. **BRAM이 병목** — 이 칩엔
+  particle_scorer 1개도 빠듯하고 2개 이상 병렬은 물리적으로 불가능(78%×2>100%).
+  시뮬레이션에서 검증한 4개 병렬은 이 칩 기준으로는 더 큰 칩이나 BRAM 절약(맵
+  32비트 워드 패킹, 이미 남은 과제였음)이 있어야 실제로 넣을 수 있음 — 시뮬레이션
+  만으론 알 수 없었던 정보. 100MHz(10ns) 클럭 제약 기준 **WNS=-2.594ns 위반 →
+  실제 최대 클럭 ≈ 79MHz**, 크리티컬 패스는 `ray_march_edt`의 가변 배럴 시프터
+  (`cur_shift`만큼 dx/dy를 시프트하는 조합논리 체인, 12단 로직레벨) — 다음 최적화
+  타깃으로 확정.
 
 상세 진행 기록은 [`progress.md`](progress.md).
