@@ -45,11 +45,11 @@ module tb_particle_scorer;
     integer i;
 
     initial begin
-        $readmemh("particle_dx.hex", dxs);
-        $readmemh("particle_dy.hex", dys);
-        $readmemh("particle_r.hex",  rs);
-        $readmemh("particle_x0y0.hex", x0y0);
-        $readmemh("particle_expected.hex", expected_mem);
+        $readmemh("particle0_dx.hex", dxs);
+        $readmemh("particle0_dy.hex", dys);
+        $readmemh("particle0_r.hex",  rs);
+        $readmemh("particle0_x0y0.hex", x0y0);
+        $readmemh("particle0_expected.hex", expected_mem);
     end
 
     initial begin

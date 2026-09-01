@@ -45,6 +45,7 @@ tb/
   tb_ray_march.v               레이마칭 v2.0 — 벽/경계/대각선/최대거리 4가지 케이스 검증
   tb_ray_march_bram.v          레이마칭 v2.1 — 실제 changwon 트랙에서 6가지 방향 검증
   tb_particle_scorer.v         v3 — 파티클 1개, 빔 8개, 레이마칭+센서모델 전체 파이프라인 검증
+  tb_particle_scorer_parallel.v v3 병렬 — particle_scorer 2개 동시 처리, 소요시간이 단일 처리와 동일함을 확인
 tools/
   gen_track_map.py             changwon map.pgm -> 지도 .hex + 파이썬으로 미리 계산한 테스트 시나리오 정답
   gen_particle_scorer_test.py  particle_scorer 통합 테스트용 정답지(위 두 스크립트를 그대로 import해서 재사용)
@@ -94,7 +95,8 @@ gtkwave sim/tb_sensor_pe_parallel.vcd   # 병렬 PE 파형
 
 **v3(v1+v2 결합) 완료**: `particle_scorer.v` — 빔마다 레이마칭으로 기대거리를
 구하고 그걸 센서모델로 채점, 파티클 전체 점수까지 내는 전체 파이프라인. 파티클
-1개(changwon 트랙 자유공간), 빔 8개(부채꼴 -60°~+60°)로 검증 — **첫 시도에 PASS**
-(`weight_o=-7441`). 빔별 처리시간 로그에서 "먼 거리 빔이 압도적으로 오래 걸린다"
-(레이마칭이 전체 비용의 90%라던 실측 결과)가 시뮬레이션 타이밍으로도 그대로
-보임. 상세는 [`progress.md`](progress.md).
+1개로 첫 검증(`weight_o=-7441`), **그다음 particle_scorer 2개를 동시에 돌려서
+파티클 2개를 병렬 처리 — 소요시간 4300ns(단일 처리 4305ns와 거의 동일)로 전체
+파이프라인 단위 병렬화까지 확인.** 빔별 처리시간 로그에서 "먼 거리 빔이 압도적
+으로 오래 걸린다"(레이마칭이 전체 비용의 90%라던 실측 결과)가 시뮬레이션
+타이밍으로도 그대로 보임. 상세는 [`progress.md`](progress.md).
