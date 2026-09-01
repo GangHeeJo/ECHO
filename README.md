@@ -40,6 +40,8 @@ rtl/
   particle_scorer_arb.v         [v3.2] particle_scorer_shared를 중재(arbiter) 방식으로 재설계 — 공유 테이블 포트에 req/gnt 인터페이스 추가
   particle_scorer_pair_arb.v    [v3.2] particle_scorer_arb 2개가 arbiter2(전국AI반도체경진대회 프로젝트 재사용)로 single-port table_mem 하나를 시분할 — BRAM 추가비용 0으로 합성 성공
   arbiter2.v                    전국AI반도체경진대회 프로젝트에서 그대로 재사용 — 2-input round-robin 중재기(안 건드림)
+  particle_scorer_quad_arb.v    [v3.3] particle_scorer_arb 4개가 arbiter4(같은 프로젝트 재사용)로 single-port table_mem 하나를 시분할 — BRAM 39/50 그대로 유지
+  arbiter4.v                     전국AI반도체경진대회 프로젝트에서 그대로 재사용 — 4-input round-robin 중재기(안 건드림)
   ray_march_edt.v               [v2.2] 거리장(EDT) 기반 마칭 — 빈 공간에서 2^k칸씩 성큼성큼(배럴 시프터, 곱셈기 없음)
 tb/
   tb_sensor_pe.v              PE 1개, 파이썬 정답지와 대조하는 자가검증 테스트벤치 (60빔)
@@ -56,6 +58,7 @@ tb/
   tb_ray_march_edt.v            거리장 기반 마칭 검증 — 같은 6케이스에서 기존 대비 클럭 수 직접 대조(최대 6배 이상 감소)
   tb_particle_scorer_pair.v     [폐기] particle_scorer_pair(진짜 듀얼포트 공유) 기능검증 — 시뮬은 통과하나 합성이 실패해 폐기된 경로
   tb_particle_scorer_pair_arb.v v3.2 — particle_scorer_pair_arb(중재 공유) 기능검증, 파티클 2개 다 PASS
+  tb_particle_scorer_quad_arb.v v3.3 — particle_scorer_quad_arb(4-way 중재 공유) 기능검증, 파티클 4개 다 PASS(1540ns)
 tools/
   gen_track_map.py             changwon map.pgm -> 지도 .hex + 파이썬으로 미리 계산한 테스트 시나리오 정답
   gen_particle_scorer_test.py  particle_scorer 통합 테스트용 정답지(위 두 스크립트를 그대로 import해서 재사용)
@@ -70,6 +73,9 @@ synth/
   util_pair_arb.rpt             자원 사용량 실측(BRAM 39/50 — 파티클 1개였을 때와 동일)
   util_pair_arb_hier.rpt        모듈별 BRAM 내역(테이블 하나가 BRAM 100% 차지 확인)
   timing_pair_arb.rpt           타이밍(WNS=-2.594ns, 단일 버전과 동일 — 중재 로직이 크리티컬 패스 안 건드림)
+  synth_quad_arb.tcl            particle_scorer_quad_arb 합성(파티클 4개, 테이블 공유)
+  util_quad_arb.rpt             자원 사용량 실측(BRAM 39/50 — 파티클 1/2개였을 때와 동일, LUT 25.88%)
+  timing_quad_arb.rpt           타이밍(WNS=-2.594ns, 여전히 동일)
 sim/
   sensor_model_log_q5_8.hex   룩업테이블 데이터
   testvec_addrs.hex           테스트용 주소 목록 (파티클 5개 x 빔 60개)
@@ -155,5 +161,15 @@ gtkwave sim/tb_sensor_pe_parallel.vcd   # 병렬 PE 파형
   13.07%(2719/20800, 로직 2배+중재기), FF 0.91%, DSP 여전히 0%. 타이밍도
   WNS=-2.594ns로 단일 버전과 동일(중재 로직이 크리티컬 패스를 악화시키지
   않음). 중재기 자체 비용은 LUT 2개, FF 1개(거의 무료).
+- **파티클 4개로 확장 — `arbiter4.v`(같은 AER 프로젝트) 재사용, BRAM 여전히
+  동일** — `particle_scorer_quad_arb.v`. pair_arb의 홀드 로직(승인 후 1클럭
+  더 주소 유지)을 2비트 인덱스로 그대로 일반화, 4/4 기능검증 PASS(1540ns,
+  독립 테이블 4배 병렬 버전의 1520ns 대비 +1.3% — 4-way 시분할이어도 경합이
+  거의 없다는 뜻). **합성 실측: BRAM 39/50(78%) — 파티클 1개·2개 때와 완전히
+  동일**, LUT 25.88%(5384/20800, 로직 4배), FF 1.80%, DSP 여전히 0%, 타이밍도
+  WNS=-2.594ns로 동일(≈79MHz). **결론: 이 칩(XC7A35T) 하나로 파티클 1→4개를
+  BRAM 추가비용 0으로 전부 커버.** 합성 중 클라우드 백업 에이전트가 Vivado
+  내부 파일을 다시 플레이스홀더로 되돌려놔서 같은 `unimacro_verilog.tcl`
+  오류가 재발함(2회차) — 같은 워크어라운드(PowerShell로 한 번 읽어서 재-하이드레이션)로 해결, 재발 가능성 있음을 기록.
 
 상세 진행 기록은 [`progress.md`](progress.md).
