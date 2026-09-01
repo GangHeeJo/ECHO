@@ -22,9 +22,9 @@ module ray_march_bram #(
     //  판정이 났던 버그를 실측으로 잡음 — center_+x 케이스가 119 대신 56에서 멈췄었음)
     parameter INT_W     = 10,               // 정수부(부호있음): -512~511 커버
     parameter FRAC_W    = 8,
-    parameter POS_W     = INT_W + FRAC_W,   // 17
+    parameter POS_W     = INT_W + FRAC_W,   // 18
     parameter MAX_STEPS = 300,              // 15m / 0.05m
-    parameter DIST_W    = 9,                // ceil(log2(301))
+    parameter DIST_W    = $clog2(MAX_STEPS+1), // MAX_STEPS만 바꾸면 자동으로 맞춰짐
     parameter MAP_ADDR_W = 17,              // GRID_H(8bit,y) + PADX_W(9bit,x)
     parameter INIT_FILE = "changwon_occ.hex"
 ) (

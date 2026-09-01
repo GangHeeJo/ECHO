@@ -19,7 +19,7 @@ module ray_march #(
     parameter FRAC_W    = 8,               // 소수부 비트
     parameter POS_W     = INT_W + FRAC_W,  // 14
     parameter MAX_STEPS = 40,
-    parameter DIST_W    = 6                // ceil(log2(MAX_STEPS+1))
+    parameter DIST_W    = $clog2(MAX_STEPS+1)  // MAX_STEPS만 바꾸면 자동으로 맞춰짐
 ) (
     input  wire                    clk,
     input  wire                    rst_n,
