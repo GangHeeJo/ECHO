@@ -37,9 +37,9 @@ BRAM 추가비용 0으로 늘리는 데 성공했다(합성 3회 전부 BRAM 39/
 
 ## 수치 결과 (Vivado ML Standard, Arty A7-35T `xc7a35ticsg324-1L`, 무료 라이선스 대상 — 보드 없이 합성만)
 
-| 구성 | BRAM(50개 중) | LUT(20800개 중) | DSP | WNS(100MHz 제약) | 병렬 지연시간(빔8개 기준) |
+| 구성 | BRAM(50개 중) | LUT(20800개 중) | DSP | WNS(100MHz 제약, 합성 기준 추정치) | 병렬 지연시간(빔8개 기준) |
 |---|---|---|---|---|---|
-| 파티클 1개(테이블 전용 소유) | 39 (78%) | 6.40% | 0 | -2.594ns(≈79MHz) | — |
+| 파티클 1개(테이블 전용 소유) | 39 (78%) | 6.40% | 0 | -2.594ns(≈79MHz 추정) | — |
 | 독립 테이블로 2개 이상 병렬 | **156(2개분) — 예산초과, 합성 실패** | — | — | — | 1520 ns(시뮬만, 이 칩엔 못 들어감) |
 | `arbiter2`로 2개가 테이블 공유 | 39 (78%, 동일) | 13.07% | 0 | -2.594ns(동일) | 1310 ns |
 | `arbiter4`로 4개가 테이블 공유 | 39 (78%, 동일) | 25.88% | 0 | -2.594ns(동일) | 1540 ns(+1.3%) |
@@ -136,7 +136,7 @@ synth/
   constraints.xdc              100MHz 클럭 제약(합성 타이밍 분석용)
   synth_v1_sanity.tcl          가장 작은 모듈(sensor_pe)로 Vivado 배치모드 파이프라인 자체를 검증
   synth_v3_timed.tcl / util_v3_timed.rpt / timing_v3_timed.rpt / timing_v3_worstpath.rpt
-                                particle_scorer(파티클 1개) 합성+타이밍 — LUT 6.4%/FF 0.61%/BRAM 78%/DSP 0%, ≈79MHz
+                                particle_scorer(파티클 1개) 합성+타이밍 — LUT 6.4%/FF 0.61%/BRAM 78%/DSP 0%, 합성 기준 추정 ≈79MHz(실물 보드 측정 아님, place&route 전 수치)
   synth_pair_arb.tcl / util_pair_arb*.rpt / timing_pair_arb.rpt
                                 particle_scorer_pair_arb(파티클 2개, 테이블 공유) 합성 — BRAM 39/50 그대로
   synth_quad_arb.tcl / util_quad_arb*.rpt / timing_quad_arb.rpt
