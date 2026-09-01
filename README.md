@@ -34,6 +34,7 @@ rtl/
   addr_gen.v                  r*301+d 주소를 시프트+덧셈만으로 계산(곱셈기 없음)
   ray_march.v                 [v2.0] 방향벡터 따라 격자 지도를 걸어 벽까지 거리 재기 (20x20 테스트지도, 2차원 배열 인덱싱)
   ray_march_bram.v             [v2.1] 위와 같은 알고리즘, 실제 changwon 트랙(400x160칸) — 평면(flat) BRAM 주소 계산으로 교체
+  particle_scorer.v            [v3] v1+v2 결합 — 빔마다 레이마칭으로 기대거리 구하고 센서모델로 채점, 파티클 전체 점수까지
 tb/
   tb_sensor_pe.v              PE 1개, 파이썬 정답지와 대조하는 자가검증 테스트벤치 (60빔)
   tb_sensor_pe_parallel.v     PE 2개가 듀얼포트 메모리를 공유하며 파티클 2개를 동시 처리하는지 검증
@@ -43,8 +44,10 @@ tb/
   tb_sensor_pe_addrgen.v      addr_gen을 실제로 PE 앞단에 연결 — 주소를 하드웨어가 직접 계산하는 전체 파이프라인 검증
   tb_ray_march.v               레이마칭 v2.0 — 벽/경계/대각선/최대거리 4가지 케이스 검증
   tb_ray_march_bram.v          레이마칭 v2.1 — 실제 changwon 트랙에서 6가지 방향 검증
+  tb_particle_scorer.v         v3 — 파티클 1개, 빔 8개, 레이마칭+센서모델 전체 파이프라인 검증
 tools/
   gen_track_map.py             changwon map.pgm -> 지도 .hex + 파이썬으로 미리 계산한 테스트 시나리오 정답
+  gen_particle_scorer_test.py  particle_scorer 통합 테스트용 정답지(위 두 스크립트를 그대로 import해서 재사용)
 sim/
   sensor_model_log_q5_8.hex   룩업테이블 데이터
   testvec_addrs.hex           테스트용 주소 목록 (파티클 5개 x 빔 60개)
@@ -86,8 +89,12 @@ gtkwave sim/tb_sensor_pe_parallel.vcd   # 병렬 PE 파형
 순차 대조군과 직접 비교해 실측 확정: 2560ns → 640ns), 주소생성(`r*301+d`)까지
 곱셈기 없이 하드웨어가 직접 계산하는 전체 파이프라인 검증까지 완료.
 
-**v2(레이마칭) 진행 중**: 첫 모듈(`ray_march.v`, 20x20 테스트지도) 4/4 검증 →
-**실제 changwon 트랙(400x160칸, 20m x 8m) 지도로 확장**(`ray_march_bram.v`, 평면
-BRAM 주소 계산으로 교체) 6/6 검증까지 완료. 확장 중 비트폭 버그(정수부 부호있는
-9비트로는 x=256에서 오버플로) 하나 실측으로 잡음 — 상세는 [`progress.md`](progress.md).
-다음은 실제 트랙 크기에서의 거리장 기반 최적화, 그리고 v1(센서모델)과의 결합.
+**v2(레이마칭)**: 20x20 테스트지도 → 실제 changwon 트랙(400x160칸) 확장까지
+완료(비트폭 오버플로 버그 하나 실측으로 잡음).
+
+**v3(v1+v2 결합) 완료**: `particle_scorer.v` — 빔마다 레이마칭으로 기대거리를
+구하고 그걸 센서모델로 채점, 파티클 전체 점수까지 내는 전체 파이프라인. 파티클
+1개(changwon 트랙 자유공간), 빔 8개(부채꼴 -60°~+60°)로 검증 — **첫 시도에 PASS**
+(`weight_o=-7441`). 빔별 처리시간 로그에서 "먼 거리 빔이 압도적으로 오래 걸린다"
+(레이마칭이 전체 비용의 90%라던 실측 결과)가 시뮬레이션 타이밍으로도 그대로
+보임. 상세는 [`progress.md`](progress.md).
