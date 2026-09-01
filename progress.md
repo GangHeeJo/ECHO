@@ -697,3 +697,61 @@ LUT5x1, LUT6x9)에서 13단(CARRY4x3, LUT3x1, LUT6x8, MUXF7x1)으로 매핑이
 대한 후속 확인 완료.
 
 **이번에 건드린 파일**: `synth/synth_oct_worstpath.tcl`, `synth/timing_oct_worstpath.rpt`.
+
+## 2026-09-02 (이어서8) — 첫 post-route 실측 + 크리티컬 패스 파이프라인 시도는 계산으로 기각
+
+**사용자 피드백으로 방향 전환**: "FPGA가 실제 ZERO particle_filter보다 확실히
+빠른가?"라는 질문에 대해, 지금까지의 성과(1→8파티클 BRAM 공유 성공)와 실제
+ZERO 대체 가능성 사이의 큰 격차를 사용자가 직접 정리해줌 — 반영 내용은
+`docs/problem_statement.md`의 "2026-09-02 추가" 섹션 참고(빔 8개 vs 60개,
+입력형태 불일치, 파티클 규모 8 vs 500~4000, 엔드투엔드 실측 없음, 정확도
+비교 없음). 다음 우선순위를 "성능 최적화"에서 "동일 조건 벤치마크"로 재정의.
+
+**크리티컬 패스 파이프라인 시도, 실측 전에 계산으로 기각**: `ray_march_edt`
+의 배럴 시프터 병목을 줄이려고 "룩업(LOOKUP)/적용(APPLY)" 2단 파이프라인
+버전(`ray_march_edt_pipe.v`)을 만들어 기능검증까지 했으나(6/6 PASS, dist/hit
+값 100% 일치), **사용자가 이 접근 자체의 근본 문제를 지적함**: 레이마칭은
+"다음 스텝의 x/y가 이전 스텝 결과에 의존"하는 loop-carried dependency라서
+일반적인 II=1(매 클럭 새 작업 시작) 파이프라인이 안 됨 — 스텝 하나가 그냥
+1클럭에서 2클럭으로 늘어날 뿐임. 실측(6케이스 클럭 수 비교)으로 확인: 스텝당
+클럭이 1.25~1.84배 증가(예: center_+x 19→35클럭). 크리티컬 패스 축소분
+(예상 20~30%)이 이 클럭 수 증가를 상쇄 못 할 가능성이 높아 **합성해보기도
+전에 net loss로 판단, 실험 폐기**(파일도 커밋 없이 삭제).
+
+**대안 우선순위 확정 (사용자 제안)**:
+1. RTL 안 건드리고 post-route 실측부터 — synth 추정치의 신뢰도 확인 (이번에
+   완료)
+2. 방향별 step-offset ROM — 60개 고정 라이다 빔이라는 이 프로젝트 특성을
+   활용, 범용 가변 배럴시프터를 (beam_id, edt_shift)→(delta_x,delta_y)
+   룩업으로 교체 시도(A/B 필요, 미착수)
+3. 그 외 아이디어(shift 범위 축소, 다중 ray 컨텍스트 인터리빙, 전체
+   사전계산)는 각각 정밀도 저하/설계 복잡도 급증/BRAM 재폭발 우려로 후순위
+
+**post-route 실측 (`particle_scorer`, 파티클 1개, `synth_v3_route.tcl`)**:
+opt_design → place_design → route_design까지 전부 실행 — 이 프로젝트 최초의
+"진짜 배치·배선 이후" 타이밍.
+| 지표 | post-synth 추정 | post-route 실측 |
+|---|---|---|
+| WNS | -2.594ns | **-2.370ns(오히려 더 좋음)** |
+| 추정 fMax | ≈79.4MHz | **≈80.8MHz** |
+| BRAM | 39/50(78%) | 39/50(78%, 동일) |
+| DSP | 0 | 0(동일) |
+| LUT | 1332(6.40%) | 1423(6.84%, 라우팅용 소폭 증가) |
+| 크리티컬 패스 | `ray_march_edt` 배럴시프터(`y_reg`->`x_reg`), 12단 | **동일 경로, 13단**(라우팅 지연이 전체의 73.5% 차지 — post-route에서 흔한 패턴) |
+
+**결론**: 지금까지의 post-synth 전용 수치(WNS, BRAM, DSP)가 실제 place&route
+결과와 상당히 가깝다는 게 처음으로 확인됨 — 이 프로젝트의 "합성 추정치"가
+과도하게 낙관적이지 않았다는 신뢰도 증거. 크리티컬 패스 정체도 재확인(같은
+배럴 시프터). 아직 2/4/8파티클 구성은 post-route 미실시(1개 결과로 추세만
+확인, 필요시 확장).
+
+**이번에 건드린 파일**: `docs/problem_statement.md`(갭 분석 추가),
+`synth/synth_v3_route.tcl` + `synth/util_v3_postroute.rpt` +
+`synth/timing_v3_postroute*.rpt`. `ray_march_edt_pipe.v`/`tb_ray_march_edt_pipe.v`
+는 만들었다가 폐기(커밋 안 함).
+
+**남은 것**:
+- 방향별 step-offset ROM A/B 실험(다음 세션 최우선 후보)
+- 2/4/8파티클 구성도 post-route까지 확인할지 판단
+- 동일 조건 벤치마크(60빔·500파티클 확장, ZERO와 직접 비교) — 큰 작업,
+  별도 세션에서 스코프 잡고 착수 예정
