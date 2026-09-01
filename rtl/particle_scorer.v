@@ -12,7 +12,7 @@
 // 같은 스코프 — cos/sin 생성, 진짜 라이다 관측값 처리는 각각 다른 주제).
 
 module particle_scorer #(
-    // ray_march_bram 쪽
+    // ray_march_edt 쪽 (거리장 기반, 인터페이스는 ray_march_bram과 동일)
     parameter RM_POS_W    = 18,
     parameter RM_DIST_W   = 9,     // 0~300 (15m/5cm)
     // sensor_pe/addr_gen 쪽
@@ -45,7 +45,7 @@ module particle_scorer #(
     wire                       rm_done, rm_hit;
     wire [RM_DIST_W-1:0]       rm_dist;
 
-    ray_march_bram u_ray_march (
+    ray_march_edt u_ray_march (  // 2026-09-02: 1칸씩 걷던 ray_march_bram -> 거리장 기반으로 교체
         .clk(clk), .rst_n(rst_n), .start(rm_start),
         .x0(rm_x0), .y0(rm_y0), .dx(rm_dx), .dy(rm_dy),
         .done(rm_done), .dist_o(rm_dist), .hit_o(rm_hit)
