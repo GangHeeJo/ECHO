@@ -45,7 +45,8 @@ def write_readmemb(occ, out_path):
 
 
 def march(occ, x0, y0, dx, dy, max_steps):
-    """RTL(ray_march.v)과 정확히 같은 알고리즘: 고정스텝 1.0, 정수부만 보고 충돌판정."""
+    """RTL(ray_march.v/ray_march_bram.v)과 정확히 같은 알고리즘: 고정스텝 1.0,
+    정수부만 보고 충돌판정."""
     x, y = x0, y0
     for steps in range(max_steps + 1):
         xi, yi = int(math.floor(x)), int(math.floor(y))
@@ -57,6 +58,58 @@ def march(occ, x0, y0, dx, dy, max_steps):
         x += dx
         y += dy
     return max_steps, False
+
+
+SHIFT_W = 3   # 0~7 (스텝 크기 2^0=1 ~ 2^7=128)
+
+
+def compute_edt_shift(occ):
+    """각 자유공간 칸마다 "가장 가까운 벽까지 거리"를 EDT(유클리드 거리장)로
+    구하고, 그 이하의 2의 거듭제곱 중 가장 큰 것의 지수(k, 스텝=2^k)를 저장한다.
+    벽 자체(및 그 거리<1인 칸)는 k=0(스텝=1, 원래 방식과 동일하게 동작).
+    lattice_planner.cpp의 buildEDT와 같은 개념(Felzenszwalb EDT) — scipy로 재현."""
+    from scipy import ndimage
+    free = ~occ
+    edt = ndimage.distance_transform_edt(free)  # 칸 단위 유클리드 거리
+    edt_floor = np.floor(edt).astype(np.int64)
+    shift = np.zeros_like(edt_floor, dtype=np.uint8)
+    for k in range((1 << SHIFT_W) - 1, -1, -1):  # SHIFT_W=3 -> k=7,6,...,0
+        step = 1 << k
+        mask = (edt_floor >= step) & (shift == 0)
+        shift[mask] = k
+    return shift
+
+
+def write_shift_readmemb(shift, out_path):
+    """occ와 같은 평면(flat) 방식, 셀 하나당 SHIFT_W비트."""
+    with open(out_path, 'w') as fh:
+        for y in range(GRID_H):
+            for x in range(PADDED_W):
+                v = int(shift[y, x]) if x < GRID_W else 0
+                fh.write(('{:0%db}' % SHIFT_W).format(v) + '\n')
+    print('작성: %s (%d x %d = %d줄, 셀당 %d비트)'
+          % (out_path, GRID_H, PADDED_W, GRID_H * PADDED_W, SHIFT_W))
+
+
+def march_edt(occ, shift, x0, y0, dx, dy, max_steps):
+    """거리장 기반 마칭 — 매 스텝마다 2^shift[y,x]칸씩 전진(곱셈 대신 시프트).
+    march()와 달리 "걸린 반복 횟수(iterations)"와 "실제 이동거리(dist)"가 다르다
+    — 이동거리는 여전히 칸 단위(march()의 결과와 같은 잣대)지만, 반복은 훨씬 적다."""
+    x, y = x0, y0
+    dist = 0
+    iterations = 0
+    while True:
+        iterations += 1
+        xi, yi = int(math.floor(x)), int(math.floor(y))
+        out = xi < 0 or xi >= GRID_W or yi < 0 or yi >= GRID_H
+        if out or occ[yi, xi]:
+            return dist, True, iterations
+        if dist >= max_steps:
+            return dist, False, iterations
+        step = 1 << int(shift[yi, xi])
+        x += dx * step
+        y += dy * step
+        dist += step
 
 
 def main():
@@ -92,6 +145,25 @@ def main():
                 int(round(dx * scale)), int(round(dy * scale)),
                 dist, int(hit)))
     print('\n작성: %s/track_scenarios.txt (RTL 테스트벤치용, Q9.8 고정소수점 정수값)' % args.out_dir)
+
+    # 거리장(EDT) 기반 마칭 — 지도 하나 더 만들고, 같은 시나리오로 "반복 횟수"
+    # 비교(이동거리는 같아야 하고, 반복 횟수만 줄어야 정상)
+    shift = compute_edt_shift(occ)
+    write_shift_readmemb(shift, '%s/changwon_edt_shift.hex' % args.out_dir)
+
+    print('\n%-12s %8s %8s -> %8s %8s' % ('name', 'dist(고정1칸)', 'dist(EDT)', 'iter(고정1칸)', 'iter(EDT)'))
+    with open('%s/track_scenarios_edt.txt' % args.out_dir, 'w') as fh:
+        for name, x0, y0, dx, dy in scenarios:
+            dist0, hit0 = march(occ, x0, y0, dx, dy, MAX_STEPS)
+            dist1, hit1, iters1 = march_edt(occ, shift, x0, y0, dx, dy, MAX_STEPS)
+            print('%-12s %10d %10d -> %10d %10d (%.1fx 적은 반복)'
+                  % (name, dist0, dist1, dist0 + 1, iters1, (dist0 + 1) / iters1))
+            fh.write('%s %d %d %d %d %d %d\n' % (
+                name,
+                int(round(x0 * scale)), int(round(y0 * scale)),
+                int(round(dx * scale)), int(round(dy * scale)),
+                dist1, int(hit1)))
+    print('\n작성: %s/changwon_edt_shift.hex, track_scenarios_edt.txt' % args.out_dir)
 
 
 if __name__ == '__main__':
