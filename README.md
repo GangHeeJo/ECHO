@@ -29,26 +29,37 @@ docs/problem_statement.md   실측 기반 문제정의·목표(반드시 먼저 
 progress.md                 세션별 진행 기록
 rtl/
   sensor_pe.v                센서모델 PE 1개 — 룩업+누적, 곱셈기 없음
-  table_mem.v                log(확률) 테이블 BRAM (.hex 로드)
+  table_mem.v                log(확률) 테이블 BRAM, 싱글포트 (.hex 로드)
+  table_mem_dp.v              위와 같은 테이블의 듀얼포트 버전 — PE 2개가 동시에 읽음
 tb/
-  tb_sensor_pe.v              파이썬 정답지와 대조하는 자가검증 테스트벤치
+  tb_sensor_pe.v              PE 1개, 파이썬 정답지와 대조하는 자가검증 테스트벤치 (60빔)
+  tb_sensor_pe_parallel.v     PE 2개가 듀얼포트 메모리를 공유하며 파티클 2개를 동시 처리하는지 검증
 sim/
-  sensor_model_log_q5_8.hex   룩업테이블 데이터 (echo-ref/gen_sensor_model.py 산출물)
-  tb_sensor_pe.vcd            시뮬레이션 파형 (GTKWave용, 실행할 때마다 갱신됨)
+  sensor_model_log_q5_8.hex   룩업테이블 데이터
+  testvec_addrs.hex           테스트용 주소 목록 (파티클 5개 x 빔 60개)
+  testvec_expected.hex        파티클별 정답(log-weight)
+  (echo-ref/gen_sensor_model.py 산출물 — 전부 여기로 복사해서 씀)
 ```
 
 파이썬 쪽 정답지 생성기(`gen_sensor_model.py`)는 Windows
 `C:\SNU\포트폴리오\ZERO\echo-ref\`에 따로 있음 — ZERO의 실제 센서모델 수식을
-그대로 이식해서, 테이블(.hex)과 RTL 테스트벡터를 만들어 여기 `sim/`으로 가져온다.
+그대로 이식해서, 테이블(.hex)과 RTL 테스트벡터(.hex)를 만들어 여기 `sim/`으로 가져온다.
 
 ## 빌드 & 실행
 
 ```bash
 cd ~/echo
+
+# PE 1개, 60빔짜리 정식 스펙 검증
 iverilog -o sim/tb_sensor_pe.vvp rtl/table_mem.v rtl/sensor_pe.v tb/tb_sensor_pe.v
-cd sim
-vvp tb_sensor_pe.vvp          # PASS/FAIL 결과 출력
-gtkwave tb_sensor_pe.vcd      # 파형 직접 보기 (선택)
+cd sim && vvp tb_sensor_pe.vvp && cd ..
+
+# PE 2개 병렬 처리 검증 (듀얼포트 메모리 공유)
+iverilog -o sim/tb_sensor_pe_parallel.vvp rtl/table_mem_dp.v rtl/sensor_pe.v tb/tb_sensor_pe_parallel.v
+cd sim && vvp tb_sensor_pe_parallel.vvp && cd ..
+
+gtkwave sim/tb_sensor_pe.vcd            # 단일 PE 파형
+gtkwave sim/tb_sensor_pe_parallel.vcd   # 병렬 PE 파형
 ```
 
 ## 툴체인
@@ -60,6 +71,8 @@ gtkwave tb_sensor_pe.vcd      # 파형 직접 보기 (선택)
 
 ## 현재 상태 (2026-09-01)
 
-센서모델 PE 1개, 5개 파티클(8빔 장난감 시나리오)로 시뮬레이션 검증 완료 — 파이썬
-정답지와 비트 단위로 정확히 일치(5/5 PASS). 다음은 실제 스펙(60빔)으로 확장,
-그다음 PE 여러 개 병렬화. 상세 진행 기록은 [`progress.md`](progress.md).
+센서모델 PE — **실제 스펙(빔 60개)으로 검증 완료**(5/5 PASS), 그리고 **PE 2개가
+듀얼포트 메모리 하나를 공유하며 파티클 2개를 동시에 처리하는 것도 검증 완료**
+(두 PE 다 정답 일치 + 총 소요시간이 "파티클 1개 처리 시간"과 거의 같음 = 진짜
+병렬 처리 확인). 다음은 PE를 더 늘리는 것(자원 공유 구조 재설계 필요)과
+레이마칭(v2). 상세 진행 기록은 [`progress.md`](progress.md).
