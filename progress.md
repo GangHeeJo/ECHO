@@ -683,3 +683,17 @@ progress.md는 기존처럼 상세 연구노트로 유지, README만 앞부분 �
 - 16개까지 더 늘려서 LUT가 진짜 병목이 되는 지점 찾기(미시도)
 - 크리티컬 패스(배럴 시프터) 최적화는 여전히 미착수
 - place_design/route_design까지 가면 포스트-라우트 정확한 타이밍 확보 가능
+
+## 2026-09-02 (이어서7) — 8-way 타이밍 차이 원인 확인: 새 병목 아님
+
+`timing_oct_worstpath.rpt`(report_timing -delay_type max)로 확인 — 8파티클의
+크리티컬 패스도 여전히 u_scorer0/u_ray_march(ray_march_edt)의 배럴 시프터
+(y_reg->x_reg 경로), 1개 때와 동일한 병목. 다만 로직레벨이 12단(CARRY4x2,
+LUT5x1, LUT6x9)에서 13단(CARRY4x3, LUT3x1, LUT6x8, MUXF7x1)으로 매핑이
+달라졌고, 데이터 경로 지연은 오히려 12.168ns->12.012ns로 0.156ns 더
+빨라짐(WNS 차이 -2.594 vs -2.438과 정확히 일치) — 설계 규모가 8배로
+커지면서 합성기가 같은 로직을 미세하게 다른 게이트 조합으로 매핑한 것뿐,
+새로운 병목이 생긴 게 아님을 확정. README의 "8-way WNS가 소폭 다름" 각주에
+대한 후속 확인 완료.
+
+**이번에 건드린 파일**: `synth/synth_oct_worstpath.tcl`, `synth/timing_oct_worstpath.rpt`.

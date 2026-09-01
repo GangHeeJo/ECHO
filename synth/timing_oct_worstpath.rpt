@@ -1,0 +1,427 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Wed Sep  2 03:01:58 2026
+| Host         : BOOK-S5JNKNEIOB running 64-bit major release  (build 9200)
+| Command      : report_timing -delay_type max -max_paths 5 -file timing_oct_worstpath.rpt
+| Design       : particle_scorer_oct_arb
+| Device       : 7a35ti-csg324
+| Speed File   : -1L  PRODUCTION 1.23 2018-06-13
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -2.438ns  (required time - arrival time)
+  Source:                 u_scorer0/u_ray_march/y_reg[13]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer0/u_ray_march/x_reg[9]_rep/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.012ns  (logic 3.022ns (25.158%)  route 8.990ns (74.842%))
+  Logic Levels:           13  (CARRY4=3 LUT3=1 LUT6=8 MUXF7=1)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.584     2.453    u_scorer0/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer0/u_ray_march/y_reg[13]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 f  u_scorer0/u_ray_march/y_reg[13]/Q
+                         net (fo=6, unplaced)         0.997     3.906    u_scorer0/u_ray_march/y_reg[13]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.201 f  u_scorer0/u_ray_march/running_i_5/O
+                         net (fo=60, unplaced)        0.506     4.707    u_scorer0/u_ray_march/running_i_5_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.831 r  u_scorer0/u_ray_march/x[0]_i_425/O
+                         net (fo=118, unplaced)       1.215     6.046    u_scorer0/u_ray_march/x[0]_i_425_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     6.170 f  u_scorer0/u_ray_march/x[0]_i_984/O
+                         net (fo=1, unplaced)         0.000     6.170    u_scorer0/u_ray_march/x[0]_i_984_n_0
+                         MUXF7 (Prop_muxf7_I1_O)      0.245     6.415 f  u_scorer0/u_ray_march/x_reg[0]_i_608/O
+                         net (fo=1, unplaced)         0.905     7.320    u_scorer0/u_ray_march/x_reg[0]_i_608_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.298     7.618 f  u_scorer0/u_ray_march/x[0]_i_266/O
+                         net (fo=1, unplaced)         0.902     8.520    u_scorer0/u_ray_march/x[0]_i_266_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     8.644 f  u_scorer0/u_ray_march/x[0]_i_110/O
+                         net (fo=1, unplaced)         0.902     9.546    u_scorer0/u_ray_march/x[0]_i_110_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.670 f  u_scorer0/u_ray_march/x[0]_i_52/O
+                         net (fo=1, unplaced)         0.902    10.572    u_scorer0/u_ray_march/x[0]_i_52_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    10.696 f  u_scorer0/u_ray_march/x[0]_i_29/O
+                         net (fo=3, unplaced)         0.437    11.133    u_scorer0/u_ray_march/x[0]_i_29_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    11.257 r  u_scorer0/u_ray_march/x[0]_i_14/O
+                         net (fo=60, unplaced)        1.198    12.455    u_scorer0/u_ray_march/x[0]_i_14_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.579 r  u_scorer0/u_ray_march/x[0]_i_4/O
+                         net (fo=1, unplaced)         0.474    13.053    u_scorer0/u_ray_march/x[0]_i_4_n_0
+                         CARRY4 (Prop_carry4_DI[2]_CO[3])
+                                                      0.398    13.451 r  u_scorer0/u_ray_march/x_reg[0]_i_2/CO[3]
+                         net (fo=1, unplaced)         0.009    13.460    u_scorer0/u_ray_march/x_reg[0]_i_2_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.574 r  u_scorer0/u_ray_march/x_reg[4]_i_1/CO[3]
+                         net (fo=1, unplaced)         0.000    13.574    u_scorer0/u_ray_march/x_reg[4]_i_1_n_0
+                         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.348    13.922 r  u_scorer0/u_ray_march/x_reg[8]_i_1/O[1]
+                         net (fo=3, unplaced)         0.543    14.465    u_scorer0/u_ray_march/x_reg[8]_i_1_n_6
+                         FDCE                                         r  u_scorer0/u_ray_march/x_reg[9]_rep/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.439    12.129    u_scorer0/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer0/u_ray_march/x_reg[9]_rep/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.246    12.027    u_scorer0/u_ray_march/x_reg[9]_rep
+  -------------------------------------------------------------------
+                         required time                         12.027    
+                         arrival time                         -14.465    
+  -------------------------------------------------------------------
+                         slack                                 -2.438    
+
+Slack (VIOLATED) :        -2.438ns  (required time - arrival time)
+  Source:                 u_scorer0/u_ray_march/y_reg[13]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer0/u_ray_march/x_reg[9]_rep__0/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.012ns  (logic 3.022ns (25.158%)  route 8.990ns (74.842%))
+  Logic Levels:           13  (CARRY4=3 LUT3=1 LUT6=8 MUXF7=1)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.584     2.453    u_scorer0/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer0/u_ray_march/y_reg[13]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 f  u_scorer0/u_ray_march/y_reg[13]/Q
+                         net (fo=6, unplaced)         0.997     3.906    u_scorer0/u_ray_march/y_reg[13]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.201 f  u_scorer0/u_ray_march/running_i_5/O
+                         net (fo=60, unplaced)        0.506     4.707    u_scorer0/u_ray_march/running_i_5_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.831 r  u_scorer0/u_ray_march/x[0]_i_425/O
+                         net (fo=118, unplaced)       1.215     6.046    u_scorer0/u_ray_march/x[0]_i_425_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     6.170 f  u_scorer0/u_ray_march/x[0]_i_984/O
+                         net (fo=1, unplaced)         0.000     6.170    u_scorer0/u_ray_march/x[0]_i_984_n_0
+                         MUXF7 (Prop_muxf7_I1_O)      0.245     6.415 f  u_scorer0/u_ray_march/x_reg[0]_i_608/O
+                         net (fo=1, unplaced)         0.905     7.320    u_scorer0/u_ray_march/x_reg[0]_i_608_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.298     7.618 f  u_scorer0/u_ray_march/x[0]_i_266/O
+                         net (fo=1, unplaced)         0.902     8.520    u_scorer0/u_ray_march/x[0]_i_266_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     8.644 f  u_scorer0/u_ray_march/x[0]_i_110/O
+                         net (fo=1, unplaced)         0.902     9.546    u_scorer0/u_ray_march/x[0]_i_110_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.670 f  u_scorer0/u_ray_march/x[0]_i_52/O
+                         net (fo=1, unplaced)         0.902    10.572    u_scorer0/u_ray_march/x[0]_i_52_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    10.696 f  u_scorer0/u_ray_march/x[0]_i_29/O
+                         net (fo=3, unplaced)         0.437    11.133    u_scorer0/u_ray_march/x[0]_i_29_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    11.257 r  u_scorer0/u_ray_march/x[0]_i_14/O
+                         net (fo=60, unplaced)        1.198    12.455    u_scorer0/u_ray_march/x[0]_i_14_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.579 r  u_scorer0/u_ray_march/x[0]_i_4/O
+                         net (fo=1, unplaced)         0.474    13.053    u_scorer0/u_ray_march/x[0]_i_4_n_0
+                         CARRY4 (Prop_carry4_DI[2]_CO[3])
+                                                      0.398    13.451 r  u_scorer0/u_ray_march/x_reg[0]_i_2/CO[3]
+                         net (fo=1, unplaced)         0.009    13.460    u_scorer0/u_ray_march/x_reg[0]_i_2_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.574 r  u_scorer0/u_ray_march/x_reg[4]_i_1/CO[3]
+                         net (fo=1, unplaced)         0.000    13.574    u_scorer0/u_ray_march/x_reg[4]_i_1_n_0
+                         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.348    13.922 r  u_scorer0/u_ray_march/x_reg[8]_i_1/O[1]
+                         net (fo=3, unplaced)         0.543    14.465    u_scorer0/u_ray_march/x_reg[8]_i_1_n_6
+                         FDCE                                         r  u_scorer0/u_ray_march/x_reg[9]_rep__0/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.439    12.129    u_scorer0/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer0/u_ray_march/x_reg[9]_rep__0/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.246    12.027    u_scorer0/u_ray_march/x_reg[9]_rep__0
+  -------------------------------------------------------------------
+                         required time                         12.027    
+                         arrival time                         -14.465    
+  -------------------------------------------------------------------
+                         slack                                 -2.438    
+
+Slack (VIOLATED) :        -2.438ns  (required time - arrival time)
+  Source:                 u_scorer2/u_ray_march/y_reg[13]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer2/u_ray_march/x_reg[9]_rep/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.012ns  (logic 3.022ns (25.158%)  route 8.990ns (74.842%))
+  Logic Levels:           13  (CARRY4=3 LUT3=1 LUT6=8 MUXF7=1)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.584     2.453    u_scorer2/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer2/u_ray_march/y_reg[13]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 f  u_scorer2/u_ray_march/y_reg[13]/Q
+                         net (fo=6, unplaced)         0.997     3.906    u_scorer2/u_ray_march/y_reg[13]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.201 f  u_scorer2/u_ray_march/running_i_4__1/O
+                         net (fo=60, unplaced)        0.506     4.707    u_scorer2/u_ray_march/running_i_4__1_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.831 r  u_scorer2/u_ray_march/x[0]_i_425__1/O
+                         net (fo=118, unplaced)       1.215     6.046    u_scorer2/u_ray_march/x[0]_i_425__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     6.170 f  u_scorer2/u_ray_march/x[0]_i_984__1/O
+                         net (fo=1, unplaced)         0.000     6.170    u_scorer2/u_ray_march/x[0]_i_984__1_n_0
+                         MUXF7 (Prop_muxf7_I1_O)      0.245     6.415 f  u_scorer2/u_ray_march/x_reg[0]_i_608__1/O
+                         net (fo=1, unplaced)         0.905     7.320    u_scorer2/u_ray_march/x_reg[0]_i_608__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.298     7.618 f  u_scorer2/u_ray_march/x[0]_i_266__1/O
+                         net (fo=1, unplaced)         0.902     8.520    u_scorer2/u_ray_march/x[0]_i_266__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     8.644 f  u_scorer2/u_ray_march/x[0]_i_110__1/O
+                         net (fo=1, unplaced)         0.902     9.546    u_scorer2/u_ray_march/x[0]_i_110__1_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.670 f  u_scorer2/u_ray_march/x[0]_i_52__1/O
+                         net (fo=1, unplaced)         0.902    10.572    u_scorer2/u_ray_march/x[0]_i_52__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    10.696 f  u_scorer2/u_ray_march/x[0]_i_29__1/O
+                         net (fo=3, unplaced)         0.437    11.133    u_scorer2/u_ray_march/x[0]_i_29__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    11.257 r  u_scorer2/u_ray_march/x[0]_i_14__1/O
+                         net (fo=60, unplaced)        1.198    12.455    u_scorer2/u_ray_march/x[0]_i_14__1_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.579 r  u_scorer2/u_ray_march/x[0]_i_4__1/O
+                         net (fo=1, unplaced)         0.474    13.053    u_scorer2/u_ray_march/x[0]_i_4__1_n_0
+                         CARRY4 (Prop_carry4_DI[2]_CO[3])
+                                                      0.398    13.451 r  u_scorer2/u_ray_march/x_reg[0]_i_2__1/CO[3]
+                         net (fo=1, unplaced)         0.009    13.460    u_scorer2/u_ray_march/x_reg[0]_i_2__1_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.574 r  u_scorer2/u_ray_march/x_reg[4]_i_1__1/CO[3]
+                         net (fo=1, unplaced)         0.000    13.574    u_scorer2/u_ray_march/x_reg[4]_i_1__1_n_0
+                         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.348    13.922 r  u_scorer2/u_ray_march/x_reg[8]_i_1__1/O[1]
+                         net (fo=3, unplaced)         0.543    14.465    u_scorer2/u_ray_march/x_reg[8]_i_1__1_n_6
+                         FDCE                                         r  u_scorer2/u_ray_march/x_reg[9]_rep/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.439    12.129    u_scorer2/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer2/u_ray_march/x_reg[9]_rep/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.246    12.027    u_scorer2/u_ray_march/x_reg[9]_rep
+  -------------------------------------------------------------------
+                         required time                         12.027    
+                         arrival time                         -14.465    
+  -------------------------------------------------------------------
+                         slack                                 -2.438    
+
+Slack (VIOLATED) :        -2.438ns  (required time - arrival time)
+  Source:                 u_scorer2/u_ray_march/y_reg[13]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer2/u_ray_march/x_reg[9]_rep__0/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.012ns  (logic 3.022ns (25.158%)  route 8.990ns (74.842%))
+  Logic Levels:           13  (CARRY4=3 LUT3=1 LUT6=8 MUXF7=1)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.584     2.453    u_scorer2/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer2/u_ray_march/y_reg[13]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 f  u_scorer2/u_ray_march/y_reg[13]/Q
+                         net (fo=6, unplaced)         0.997     3.906    u_scorer2/u_ray_march/y_reg[13]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.201 f  u_scorer2/u_ray_march/running_i_4__1/O
+                         net (fo=60, unplaced)        0.506     4.707    u_scorer2/u_ray_march/running_i_4__1_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.831 r  u_scorer2/u_ray_march/x[0]_i_425__1/O
+                         net (fo=118, unplaced)       1.215     6.046    u_scorer2/u_ray_march/x[0]_i_425__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     6.170 f  u_scorer2/u_ray_march/x[0]_i_984__1/O
+                         net (fo=1, unplaced)         0.000     6.170    u_scorer2/u_ray_march/x[0]_i_984__1_n_0
+                         MUXF7 (Prop_muxf7_I1_O)      0.245     6.415 f  u_scorer2/u_ray_march/x_reg[0]_i_608__1/O
+                         net (fo=1, unplaced)         0.905     7.320    u_scorer2/u_ray_march/x_reg[0]_i_608__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.298     7.618 f  u_scorer2/u_ray_march/x[0]_i_266__1/O
+                         net (fo=1, unplaced)         0.902     8.520    u_scorer2/u_ray_march/x[0]_i_266__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     8.644 f  u_scorer2/u_ray_march/x[0]_i_110__1/O
+                         net (fo=1, unplaced)         0.902     9.546    u_scorer2/u_ray_march/x[0]_i_110__1_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.670 f  u_scorer2/u_ray_march/x[0]_i_52__1/O
+                         net (fo=1, unplaced)         0.902    10.572    u_scorer2/u_ray_march/x[0]_i_52__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    10.696 f  u_scorer2/u_ray_march/x[0]_i_29__1/O
+                         net (fo=3, unplaced)         0.437    11.133    u_scorer2/u_ray_march/x[0]_i_29__1_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    11.257 r  u_scorer2/u_ray_march/x[0]_i_14__1/O
+                         net (fo=60, unplaced)        1.198    12.455    u_scorer2/u_ray_march/x[0]_i_14__1_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.579 r  u_scorer2/u_ray_march/x[0]_i_4__1/O
+                         net (fo=1, unplaced)         0.474    13.053    u_scorer2/u_ray_march/x[0]_i_4__1_n_0
+                         CARRY4 (Prop_carry4_DI[2]_CO[3])
+                                                      0.398    13.451 r  u_scorer2/u_ray_march/x_reg[0]_i_2__1/CO[3]
+                         net (fo=1, unplaced)         0.009    13.460    u_scorer2/u_ray_march/x_reg[0]_i_2__1_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.574 r  u_scorer2/u_ray_march/x_reg[4]_i_1__1/CO[3]
+                         net (fo=1, unplaced)         0.000    13.574    u_scorer2/u_ray_march/x_reg[4]_i_1__1_n_0
+                         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.348    13.922 r  u_scorer2/u_ray_march/x_reg[8]_i_1__1/O[1]
+                         net (fo=3, unplaced)         0.543    14.465    u_scorer2/u_ray_march/x_reg[8]_i_1__1_n_6
+                         FDCE                                         r  u_scorer2/u_ray_march/x_reg[9]_rep__0/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.439    12.129    u_scorer2/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer2/u_ray_march/x_reg[9]_rep__0/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.246    12.027    u_scorer2/u_ray_march/x_reg[9]_rep__0
+  -------------------------------------------------------------------
+                         required time                         12.027    
+                         arrival time                         -14.465    
+  -------------------------------------------------------------------
+                         slack                                 -2.438    
+
+Slack (VIOLATED) :        -2.438ns  (required time - arrival time)
+  Source:                 u_scorer3/u_ray_march/y_reg[13]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer3/u_ray_march/x_reg[9]_rep/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.012ns  (logic 3.022ns (25.158%)  route 8.990ns (74.842%))
+  Logic Levels:           13  (CARRY4=3 LUT3=1 LUT6=8 MUXF7=1)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.584     2.453    u_scorer3/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer3/u_ray_march/y_reg[13]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 f  u_scorer3/u_ray_march/y_reg[13]/Q
+                         net (fo=6, unplaced)         0.997     3.906    u_scorer3/u_ray_march/y_reg[13]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.201 f  u_scorer3/u_ray_march/running_i_4__2/O
+                         net (fo=60, unplaced)        0.506     4.707    u_scorer3/u_ray_march/running_i_4__2_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.831 r  u_scorer3/u_ray_march/x[0]_i_425__2/O
+                         net (fo=118, unplaced)       1.215     6.046    u_scorer3/u_ray_march/x[0]_i_425__2_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     6.170 f  u_scorer3/u_ray_march/x[0]_i_984__2/O
+                         net (fo=1, unplaced)         0.000     6.170    u_scorer3/u_ray_march/x[0]_i_984__2_n_0
+                         MUXF7 (Prop_muxf7_I1_O)      0.245     6.415 f  u_scorer3/u_ray_march/x_reg[0]_i_608__2/O
+                         net (fo=1, unplaced)         0.905     7.320    u_scorer3/u_ray_march/x_reg[0]_i_608__2_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.298     7.618 f  u_scorer3/u_ray_march/x[0]_i_266__2/O
+                         net (fo=1, unplaced)         0.902     8.520    u_scorer3/u_ray_march/x[0]_i_266__2_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124     8.644 f  u_scorer3/u_ray_march/x[0]_i_110__2/O
+                         net (fo=1, unplaced)         0.902     9.546    u_scorer3/u_ray_march/x[0]_i_110__2_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.670 f  u_scorer3/u_ray_march/x[0]_i_52__2/O
+                         net (fo=1, unplaced)         0.902    10.572    u_scorer3/u_ray_march/x[0]_i_52__2_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    10.696 f  u_scorer3/u_ray_march/x[0]_i_29__2/O
+                         net (fo=3, unplaced)         0.437    11.133    u_scorer3/u_ray_march/x[0]_i_29__2_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.124    11.257 r  u_scorer3/u_ray_march/x[0]_i_14__2/O
+                         net (fo=60, unplaced)        1.198    12.455    u_scorer3/u_ray_march/x[0]_i_14__2_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.579 r  u_scorer3/u_ray_march/x[0]_i_4__2/O
+                         net (fo=1, unplaced)         0.474    13.053    u_scorer3/u_ray_march/x[0]_i_4__2_n_0
+                         CARRY4 (Prop_carry4_DI[2]_CO[3])
+                                                      0.398    13.451 r  u_scorer3/u_ray_march/x_reg[0]_i_2__2/CO[3]
+                         net (fo=1, unplaced)         0.009    13.460    u_scorer3/u_ray_march/x_reg[0]_i_2__2_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.574 r  u_scorer3/u_ray_march/x_reg[4]_i_1__2/CO[3]
+                         net (fo=1, unplaced)         0.000    13.574    u_scorer3/u_ray_march/x_reg[4]_i_1__2_n_0
+                         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.348    13.922 r  u_scorer3/u_ray_march/x_reg[8]_i_1__2/O[1]
+                         net (fo=3, unplaced)         0.543    14.465    u_scorer3/u_ray_march/x_reg[8]_i_1__2_n_6
+                         FDCE                                         r  u_scorer3/u_ray_march/x_reg[9]_rep/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=1546, unplaced)      0.439    12.129    u_scorer3/u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_scorer3/u_ray_march/x_reg[9]_rep/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.246    12.027    u_scorer3/u_ray_march/x_reg[9]_rep
+  -------------------------------------------------------------------
+                         required time                         12.027    
+                         arrival time                         -14.465    
+  -------------------------------------------------------------------
+                         slack                                 -2.438    
+
+
+
+
