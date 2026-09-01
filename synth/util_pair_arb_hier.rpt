@@ -1,0 +1,41 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Wed Sep  2 02:37:21 2026
+| Host         : BOOK-S5JNKNEIOB running 64-bit major release  (build 9200)
+| Command      : report_utilization -hierarchical -file util_pair_arb_hier.rpt
+| Design       : particle_scorer_pair_arb
+| Device       : xc7a35ticsg324-1L
+| Speed File   : -1L
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++------------------------------+-----------------------+------------+------------+---------+------+-----+--------+--------+------------+
+|           Instance           |         Module        | Total LUTs | Logic LUTs | LUTRAMs | SRLs | FFs | RAMB36 | RAMB18 | DSP Blocks |
++------------------------------+-----------------------+------------+------------+---------+------+-----+--------+--------+------------+
+| particle_scorer_pair_arb     |                 (top) |       2719 |       2719 |       0 |    0 | 378 |     39 |      0 |          0 |
+|   (particle_scorer_pair_arb) |                 (top) |          0 |          0 |       0 |    0 |   2 |      0 |      0 |          0 |
+|   u_arb                      |              arbiter2 |          2 |          2 |       0 |    0 |   1 |      0 |      0 |          0 |
+|   u_scorer0                  |   particle_scorer_arb |       1288 |       1288 |       0 |    0 | 184 |      0 |      0 |          0 |
+|     (u_scorer0)              |   particle_scorer_arb |          5 |          5 |       0 |    0 | 103 |      0 |      0 |          0 |
+|     u_addr_gen               |            addr_gen_1 |         38 |         38 |       0 |    0 |   0 |      0 |      0 |          0 |
+|     u_pe                     |           sensor_pe_2 |          4 |          4 |       0 |    0 |  23 |      0 |      0 |          0 |
+|     u_ray_march              |       ray_march_edt_3 |       1241 |       1241 |       0 |    0 |  58 |      0 |      0 |          0 |
+|   u_scorer1                  | particle_scorer_arb_0 |       1363 |       1363 |       0 |    0 | 189 |      0 |      0 |          0 |
+|     (u_scorer1)              | particle_scorer_arb_0 |          6 |          6 |       0 |    0 | 103 |      0 |      0 |          0 |
+|     u_addr_gen               |              addr_gen |        102 |        102 |       0 |    0 |   0 |      0 |      0 |          0 |
+|     u_pe                     |             sensor_pe |          4 |          4 |       0 |    0 |  23 |      0 |      0 |          0 |
+|     u_ray_march              |         ray_march_edt |       1251 |       1251 |       0 |    0 |  63 |      0 |      0 |          0 |
+|   u_table_shared             |             table_mem |         66 |         66 |       0 |    0 |   2 |     39 |      0 |          0 |
++------------------------------+-----------------------+------------+------------+---------+------+-----+--------+--------+------------+
+
+

@@ -35,6 +35,11 @@ rtl/
   ray_march.v                 [v2.0] 방향벡터 따라 격자 지도를 걸어 벽까지 거리 재기 (20x20 테스트지도, 2차원 배열 인덱싱)
   ray_march_bram.v             [v2.1] 위와 같은 알고리즘, 실제 changwon 트랙(400x160칸) — 평면(flat) BRAM 주소 계산으로 교체
   particle_scorer.v            [v3] v1+v2 결합 — 빔마다 레이마칭으로 기대거리 구하고 센서모델로 채점, 파티클 전체 점수까지
+  particle_scorer_shared.v      [v3.1, 폐기] 테이블을 외부 포트로 뺀 버전 — table_mem_dp로 진짜 듀얼포트 공유 시도, 합성기가 통째 복사해 BRAM 2배로 실패
+  particle_scorer_pair.v        [v3.1, 폐기] particle_scorer_shared 2개 + table_mem_dp — 합성 실패(BRAM 156/100)로 폐기, 코드는 실패 사례로 보존
+  particle_scorer_arb.v         [v3.2] particle_scorer_shared를 중재(arbiter) 방식으로 재설계 — 공유 테이블 포트에 req/gnt 인터페이스 추가
+  particle_scorer_pair_arb.v    [v3.2] particle_scorer_arb 2개가 arbiter2(전국AI반도체경진대회 프로젝트 재사용)로 single-port table_mem 하나를 시분할 — BRAM 추가비용 0으로 합성 성공
+  arbiter2.v                    전국AI반도체경진대회 프로젝트에서 그대로 재사용 — 2-input round-robin 중재기(안 건드림)
   ray_march_edt.v               [v2.2] 거리장(EDT) 기반 마칭 — 빈 공간에서 2^k칸씩 성큼성큼(배럴 시프터, 곱셈기 없음)
 tb/
   tb_sensor_pe.v              PE 1개, 파이썬 정답지와 대조하는 자가검증 테스트벤치 (60빔)
@@ -49,6 +54,8 @@ tb/
   tb_particle_scorer_parallel.v v3 병렬 — particle_scorer 2개 동시 처리, 소요시간이 단일 처리와 동일함을 확인
   tb_particle_scorer_x4.v       v3 4배 병렬 — particle_scorer 4개 동시 처리(1520ns, 단일 처리와 비슷)
   tb_ray_march_edt.v            거리장 기반 마칭 검증 — 같은 6케이스에서 기존 대비 클럭 수 직접 대조(최대 6배 이상 감소)
+  tb_particle_scorer_pair.v     [폐기] particle_scorer_pair(진짜 듀얼포트 공유) 기능검증 — 시뮬은 통과하나 합성이 실패해 폐기된 경로
+  tb_particle_scorer_pair_arb.v v3.2 — particle_scorer_pair_arb(중재 공유) 기능검증, 파티클 2개 다 PASS
 tools/
   gen_track_map.py             changwon map.pgm -> 지도 .hex + 파이썬으로 미리 계산한 테스트 시나리오 정답
   gen_particle_scorer_test.py  particle_scorer 통합 테스트용 정답지(위 두 스크립트를 그대로 import해서 재사용)
@@ -59,6 +66,10 @@ synth/
   util_v3_timed.rpt            자원 사용량 실측(LUT 6.4%/FF 0.61%/BRAM 78%/DSP 0%)
   timing_v3_timed.rpt          타이밍 서머리(실제 최대 클럭 ≈ 79MHz)
   timing_v3_worstpath.rpt      최악 경로 상세(크리티컬 패스 = ray_march_edt 배럴 시프터)
+  synth_pair_arb.tcl            particle_scorer_pair_arb 합성(파티클 2개, 테이블 공유)
+  util_pair_arb.rpt             자원 사용량 실측(BRAM 39/50 — 파티클 1개였을 때와 동일)
+  util_pair_arb_hier.rpt        모듈별 BRAM 내역(테이블 하나가 BRAM 100% 차지 확인)
+  timing_pair_arb.rpt           타이밍(WNS=-2.594ns, 단일 버전과 동일 — 중재 로직이 크리티컬 패스 안 건드림)
 sim/
   sensor_model_log_q5_8.hex   룩업테이블 데이터
   testvec_addrs.hex           테스트용 주소 목록 (파티클 5개 x 빔 60개)
@@ -126,5 +137,23 @@ gtkwave sim/tb_sensor_pe_parallel.vcd   # 병렬 PE 파형
   실제 최대 클럭 ≈ 79MHz**, 크리티컬 패스는 `ray_march_edt`의 가변 배럴 시프터
   (`cur_shift`만큼 dx/dy를 시프트하는 조합논리 체인, 12단 로직레벨) — 다음 최적화
   타깃으로 확정.
+- **BRAM 병목 해결 — 파티클 2개가 테이블 하나를 공유, BRAM 추가비용 0** —
+  `particle_scorer_arb.v` + `particle_scorer_pair_arb.v`. 계층별 리포트로
+  BRAM 78% 전량이 `table_mem`(센서모델 테이블) 하나에서만 나온다는 걸 먼저
+  확정(레이마칭/주소생성/PE 자체는 BRAM 0 사용). 처음엔 `table_mem_dp.v`(진짜
+  듀얼포트)로 공유를 시도했으나 **합성기가 90601깊이 테이블의 듀얼포트
+  크로스바를 못 만들고 통째로 복사해버려 BRAM이 오히려 156/100(초과)로 실패**
+  — 시뮬레이션에서만 검증됐던 패턴이 실제 합성에선 안 통한 첫 사례. 대신
+  **다른 프로젝트(전국AI반도체경진대회, AER 이벤트 중재기 설계)의
+  `arbiter2.v`를 그대로 재사용**해서 진짜 single-port 테이블 하나를 매 클럭
+  시분할로 나눠 쓰게 재설계 — `sensor_pe`가 `valid_i` 이후 1클럭 뒤 데이터를
+  쓰는데 내부 `pend_valid` 릴레이 때문에 실제로는 승인 후 2클럭 동안 주소가
+  안정적이어야 한다는 걸 실측(첫 시도는 기능 검증 자체가 실패, `-7459`/
+  `-10357` vs 기대 `-7441`/`-6687`)으로 발견하고, 승인 후 1클럭 더 주소를
+  붙잡아두는 홀드 로직을 얹어 해결(`arbiter2.v` 원본은 안 건드림). **합성
+  실측: BRAM 39/50(78%) — 파티클 1개였을 때와 완전히 동일**, LUT
+  13.07%(2719/20800, 로직 2배+중재기), FF 0.91%, DSP 여전히 0%. 타이밍도
+  WNS=-2.594ns로 단일 버전과 동일(중재 로직이 크리티컬 패스를 악화시키지
+  않음). 중재기 자체 비용은 LUT 2개, FF 1개(거의 무료).
 
 상세 진행 기록은 [`progress.md`](progress.md).
