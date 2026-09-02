@@ -1049,3 +1049,94 @@ A/B: **WNS -2.653ns → -2.532ns(0.121ns 개선, 약 4.6%)**, TNS도 소폭 개�
    `set_property HD.CLK_SRC`를 수동 지정해서) 재검증 — HD.CLK_SRC 캐비엇을
    완전히 없애려면 필요.
 
+## 2026-09-02 (이어서12) — direction generator 완성: CORDIC 코어→사분면 접기→각도합→통합→겹침, 5개 모듈 전부 실제 ZERO 데이터로 검증
+
+**사용자가 방향 전환**: "RTL 미세 최적화 챕터는 닫고, 실제 ZERO와 연결되는
+검증 챕터로 넘어갈 때"라는 지적 이후, 남은 삼각함수 비용(0.782ms) 문제를
+정면으로 푸는 direction generator를 처음부터 설계·구현. 곱셈기 없는 이
+프로젝트의 원칙(로그테이블+덧셈, 시프트-덧셈 주소, 배럴시프터 마칭)에 맞는
+방식으로 CORDIC(회전을 시프트-덧셈 반복으로) 채택.
+
+**5개 모듈, 전부 커밋·전부 검증**:
+1. `cordic_sincos.v`(코어, [-90,90]도, N=16 반복): 15/15 통과, 오차 4 LSB
+2. `cordic_sincos_full.v`(사분면 접기, ±180도 전체): 19/19 통과, 오차 4 LSB —
+   짝/홀함수 대칭성만 이용(곱셈 없음)
+3. `angle_wrap.v`(파티클θ+빔 상대각, 최대 1회 2π 보정): 17/17 통과, **오차
+   정확히 0**(순수 덧셈/뺄셈) — 테스트 오라클이 양자화 순서를 안 맞춰서
+   생긴 가짜 실패 6건 발견·수정(반올림은 결합법칙이 성립 안 함:
+   round(a)+round(b) != round(a+b), RTL과 같은 순서로 오라클도 먼저
+   양자화해야 함)
+4. `direction_gen.v`(위 세 개 통합 + 실제 ZERO 60빔 각도 ROM): **실제 ZERO
+   파티클 5개 x 실제 60빔 = 300케이스, 300/300 통과, 오차 1 LSB(Q9.8)**
+5. `particle_scorer_dgen.v`(direction_gen을 겹침으로 particle_scorer에 통합)
+
+**합성 검증(direction_gen 단독)**: **DSP 0/90, BRAM 0/50, LUT 341개(1.64%),
+WNS +4.119ns(양수! 100MHz를 여유 있게 통과)** — 곱셈기 없는 설계가 실제
+합성에서도 확인됨, ray_march_edt(항상 미달)와 대조적으로 CORDIC의
+반복당 크리티컬 패스(시프트+덧셈+비교 1회)가 훨씬 얕음.
+
+**🔴 5번(particle_scorer_dgen)에서 진짜 데드락 발견·수정**: 1차 구현은
+"방향 대기"와 "beam_start 대기"를 별도 state(S_PREP_DIR0/S_WAIT_NEXT_DIR)로
+나눴는데, 이게 이 코드베이스의 기존 관례(beam_done 1클럭 뒤 beam_start를
+딱 1클럭 펄스로 줌 — 원래 설계는 S_BEAM_DONE 뒤 항상 즉시 S_WAIT_BEAM으로
+돌아가서 안전했음)를 깨서, DUT가 가변 길이 대기 state에 아직 있는 동안
+그 펄스가 지나가버려 영원히 다음 조건을 못 받는 레이스가 생김 —
+테스트벤치가 **아무 출력도 없이 120초 타임아웃**으로 걸려서 발견함(단서:
+출력이 하나도 없다는 것 자체가 완전 데드락임을 시사). **수정**:
+`S_WAIT_BEAM` 하나 안에서 `beam_start_seen` 래치로 "r_obs 준비됨"과
+"방향 준비됨" 두 독립 조건을 각각 기다리게 합침 — 어느 쪽이 늦게 와도
+안 놓침.
+
+**실측(실제 ZERO 파티클0, 60빔)**: **1507사이클**(vs 외부 dx,dy 방식
+959사이클, vs 겹침 없는 순차연결 추정치 ~2159사이클(60×CORDIC~20+마칭959)
+— **겹침으로 순차 대비 약 30% 절감**, 사용자가 예측한 방향 맞음). 다만
+959사이클과 직접 비교하면 안 됨 — 그건 "방향 계산이 아예 공짜(Jetson이
+미리 해줌)"인 경우라 애초에 이번 목표(Jetson 비용을 FPGA로 흡수)와 다른
+조건임.
+
+**weight_o 정확성**: -46170(기대 정확한 삼각함수 기준 -46150, 차이 20) —
+**FSM 버그 아님, 원인 확정**: RTL이 실제로 만든 dx,dy,r_obs를 그대로
+파이썬 march_edt에 넣으면 RTL과 똑같이 -46170이 나옴(스코어링 파이프라인
+자체는 완전히 정확) — CORDIC의 이미 검증된 ±1 LSB 오차가 march_edt의 벽
+경계에서 몇 개 빔의 충돌판정을 뒤집어서 생기는 차이, 이 프로젝트에서 이미
+여러 번 나온 "양자화가 경계에서 결과를 바꾼다" 패턴과 같은 종류(새 버그
+계열 아님).
+
+**종합 경제성(정직하게, 8-way는 아직 미착수라 추정)**:
+| 구성 | FPGA만 | +Jetson 비용 | 합계 |
+|---|---|---|---|
+| 기존(외부 dx,dy) | 0.915ms | +0.782ms(dx,dy 전처리) | **1.697ms**(ZERO 대비 19% 느림) |
+| 신규(온칩 dgen, 추정) | ~1.629ms(1507×1.356 arb배율×63배치 추정) | +0ms(불필요해짐) | **~1.629ms**(ZERO 대비 ~14% 느림, 추정) |
+
+ZERO 실측 1.428ms. **Jetson 병목은 사라졌지만, 그 자리를 온칩 CORDIC 비용이
+일부 대신 차지해서 여전히 ZERO보다 느림** — 격차는 19%→14%로 줄었지만
+역전은 아직 아님. 위 신규 줄은 **8-way 버전을 아직 안 만들어서 추정치**
+(기존 8-way의 arb 오버헤드 비율 1.356배를 그대로 가져다 씀, 검증 안 됨) —
+다음 세션에서 `particle_scorer_dgen`을 8-way arbiter로 실제 확장해서
+진짜 숫자로 확인 필요.
+
+**이번에 건드린 파일(전부 커밋 대상)**:
+- `rtl/{cordic_sincos.v, cordic_sincos_full.v, angle_wrap.v, direction_gen.v, particle_scorer_dgen.v}`
+- `tb/{tb_cordic_sincos.v, tb_cordic_sincos_full.v, tb_angle_wrap.v, tb_direction_gen.v, tb_particle_scorer_dgen.v}`
+- `tools/{gen_cordic_table.py, gen_cordic_full_table.py, gen_angle_wrap_table.py, gen_direction_gen_test.py}`
+- `sim/{cordic_*.hex, cordic_full_test_*.hex, angle_wrap_test_*.hex, beam_angles.hex, direction_gen_test_*.hex}`
+- `synth/{synth_direction_gen.tcl, util_direction_gen.rpt, timing_direction_gen.rpt}`
+
+**남은 것 / 다음 세션 우선순위**:
+1. `particle_scorer_dgen`을 8-way arbiter로 확장(`particle_scorer_dgen_arb`
+   류) — direction_gen 8개 복제(자원은 저렴, 341LUT×8=2728만 추가) + 기존
+   `table_mem` 공유 그대로 — 진짜 500파티클 실측치 필요(위 표의 "추정"을
+   "실측"으로 바꾸는 게 최우선)
+2. 통합 설계 post-synth/post-route로 DSP=0·전체 WNS 확인 — direction_gen
+   단독은 여유(+4.119ns)였지만 ray_march_edt와 한 설계 안에 같이 들어가면
+   배선 혼잡이 늘어 WNS가 나빠질 가능성 있음(8-way 때 봤던 패턴)
+3. `theta`가 particle_start 시점에 이미 [-pi,pi] wrap돼있다는 전제 —
+   실제 particle_filter.py의 theta는 wrap 안 된 채로 누적됨(오늘 확인,
+   4.57rad·5.71rad 같은 값 실측) — Jetson이든 FPGA든 어딘가에서 mod 2pi
+   wrap을 한 번 해줘야 함, 아직 이 파이프라인에 없음
+4. 정확도(ESS/순위) 재확인 — direction_gen의 미세한 오차 특성이 예전
+   external-dx,dy 버전과 다를 수 있어 재측정 가치 있음
+5. Jetson↔FPGA 통신 비용(5단계 계획 마지막 항목) — 이제 "dx,dy 스트리밍"
+   대신 "particle pose(x,y,theta) + beam_id만 보내면 됨"으로 인터페이스가
+   훨씬 가벼워짐 — 이것도 이번 direction_gen의 부수적 이득으로 기록해둘 것
+
