@@ -755,3 +755,63 @@ opt_design → place_design → route_design까지 전부 실행 — 이 프로�
 - 2/4/8파티클 구성도 post-route까지 확인할지 판단
 - 동일 조건 벤치마크(60빔·500파티클 확장, ZERO와 직접 비교) — 큰 작업,
   별도 세션에서 스코프 잡고 착수 예정
+
+## 2026-09-02 (이어서9) — 방향별 beam ROM A/B: 자원은 줄지만 타이밍은 근소 악화, 채택 안 함
+
+**가설**: `ray_march_edt`의 크리티컬 패스(`y_reg`→`x_reg`, 배럴 시프터
+`dx <<< cur_shift`)를, 이번 벤치마크가 고정 8빔(-60~60도 8등분)만 쓴다는 점을
+이용해 `{beam_id, cur_shift}` → `(step_dx, step_dy)` 64칸 ROM 조회로 대체하면
+빨라질 것이라는 가설. 스코프 한정을 코드 주석에 명시(`tools/gen_beam_step_rom.py`,
+`rtl/ray_march_edt_beamrom.v` 상단): 실제 ZERO는 파티클 theta(연속값)에 따라
+빔의 world-frame 방향이 매번 달라지므로, beam_id만 인덱싱하는 이 ROM은 이번
+고정-8빔 벤치마크 안에서만 유효하고 그대로 실전에 못 씀(theta까지 양자화하면
+ROM이 64 → 16000+로 커져 역효과 우려).
+
+**구현**: `tools/gen_beam_step_rom.py`(ROM 생성, 기존 quantize 규칙과 동일 +
+Verilog `<<<`의 18비트 truncate를 정수 시프트+마스킹으로 정확히 재현) →
+`rtl/ray_march_edt_beamrom.v` + `rtl/particle_scorer_beamrom.v`(dx,dy 입력을
+beam_id로 교체, 나머지 FSM은 particle_scorer.v와 완전 동일) →
+`tb/tb_particle_scorer_beamrom.v`(기존 particle0 정답지 그대로 재사용 — beam_id
+순서가 이미 -60~60도 8등분과 일치해서 새 오라클 불필요).
+
+**기능 검증**: 시뮬레이션에서 weight_o=-7441로 기존 particle_scorer와 완전히
+동일(cycle-by-cycle 타임스탬프까지 100% 일치, t=1315000ns) — ROM이 barrel
+shift와 비트단위로 동등함을 확인.
+
+**A/B 결과 (post-synth → post-route)**:
+| 지표 | 기존(barrel) post-synth | beam ROM post-synth | 기존 post-route | beam ROM post-route |
+|---|---|---|---|---|
+| WNS | -2.594ns | -2.418ns (+6.8%) | **-2.370ns** | **-2.444ns (-3.1%, 더 나쁨)** |
+| LUT | 1332 | 1228 (-7.8%) | 1423 | 1315 (-7.6%) |
+| Registers | 253 | 218 (-13.8%) | 255 | 220 (-13.7%) |
+| BRAM | 39/50 | 39/50(동일) | 39/50 | 39/50(동일) |
+| DSP | 0 | 0 | 0 | 0 |
+| Logic Levels(worst path) | 12 | 14 | 13 | 16 |
+
+**결론 — post-synth 추정과 post-route 실측이 정반대 방향으로 뒤집힌 첫 사례.**
+post-synth만 보면 "ROM이 이겼다"(WNS 6.8% 개선)로 오판할 뻔했으나, 실제
+place&route 이후엔 오히려 baseline보다 3.1% 나쁨(critical path가 `x_reg`→`y_reg`
+로 바뀌면서 logic level이 13→16으로 늘어남 — 작아진 설계를 배치기가 다르게
+배치하며 라우팅 지연이 늘어난 것으로 추정, 배선 지연이 여전히 전체의 71~75%
+차지). LUT/레지스터는 7~14% 일관되게 줄었지만, 이번 실험의 목표(클럭 속도
+개선)는 달성 못함 — "post-synth 추정치가 실측과 상당히 가깝다"는 지난 검증
+(2026-09-02 이어서8)과 달리, 이번엔 그 추정을 믿으면 안 되는 반례로 프로젝트
+교훈에 추가.
+
+**결정 (사전에 정한 우선순위 규칙 그대로 적용)**: 크리티컬 패스 개선 실패 →
+`ray_march_edt.v`(기존 배럴시프터)를 계속 메인으로 유지. `ray_march_edt_beamrom.v`
+/`particle_scorer_beamrom.v`는 "LUT/FF는 아끼고 싶지만 클럭은 상관없는" 상황을
+위한 대안으로 rtl/에 남겨두되(동작 검증된 코드라 폐기하지 않음), README의
+현재 권장 구성에는 반영 안 함.
+
+**이번에 건드린 파일(커밋 대상)**: `tools/gen_beam_step_rom.py`(신규),
+`rtl/ray_march_edt_beamrom.v`(신규), `rtl/particle_scorer_beamrom.v`(신규),
+`tb/tb_particle_scorer_beamrom.v`(신규), `sim/beam_step_dx.hex`/`beam_step_dy.hex`
+(신규, `gen_beam_step_rom.py`로 재생성 가능), `synth/synth_beamrom.tcl` +
+`synth/synth_beamrom_route.tcl` + 해당 util/timing 리포트 4종(신규).
+
+**남은 것**:
+- 2/4/8파티클 구성 post-route 미실시
+- 동일 조건 벤치마크(60빔·500파티클 확장, ZERO와 직접 비교) — 다음 세션
+  최우선 후보, 이번 ROM 실험보다 스코프가 훨씬 큼
+

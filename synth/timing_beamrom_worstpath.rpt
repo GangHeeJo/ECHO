@@ -1,0 +1,437 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Wed Sep  2 09:43:12 2026
+| Host         : BOOK-S5JNKNEIOB running 64-bit major release  (build 9200)
+| Command      : report_timing -delay_type max -max_paths 5 -file timing_beamrom_worstpath.rpt
+| Design       : particle_scorer_beamrom
+| Device       : 7a35ti-csg324
+| Speed File   : -1L  PRODUCTION 1.23 2018-06-13
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -2.418ns  (required time - arrival time)
+  Source:                 u_ray_march/y_reg[16]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_ray_march/x_reg[9]_rep/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        11.992ns  (logic 3.003ns (25.042%)  route 8.989ns (74.958%))
+  Logic Levels:           14  (CARRY4=3 LUT3=1 LUT4=1 LUT5=2 LUT6=7)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.584     2.453    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/y_reg[16]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 r  u_ray_march/y_reg[16]/Q
+                         net (fo=2, unplaced)         0.976     3.885    u_ray_march/y_reg[16]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.180 r  u_ray_march/g0_b1_i_16/O
+                         net (fo=58, unplaced)        0.505     4.685    u_ray_march/g0_b1_i_16_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.809 f  u_ray_march/g0_b1_i_261/O
+                         net (fo=93, unplaced)        1.000     5.809    u_ray_march/g0_b1_i_261_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     5.933 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_743/O
+                         net (fo=1, unplaced)         0.902     6.835    u_ray_march/p_0_out_inferred__1/g0_b1_i_743_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     6.959 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_359/O
+                         net (fo=3, unplaced)         0.920     7.879    u_ray_march/p_0_out_inferred__1/g0_b1_i_359_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.124     8.003 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_143/O
+                         net (fo=1, unplaced)         0.902     8.905    u_ray_march/p_0_out_inferred__1/g0_b1_i_143_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.029 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_55/O
+                         net (fo=1, unplaced)         0.902     9.931    u_ray_march/p_0_out_inferred__1/g0_b1_i_55_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.124    10.055 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_23/O
+                         net (fo=1, unplaced)         0.902    10.957    u_ray_march/p_0_out_inferred__1/g0_b1_i_23_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    11.081 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_7/O
+                         net (fo=1, unplaced)         0.449    11.530    u_ray_march/p_0_out_inferred__1/g0_b1_i_7_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.124    11.654 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_1/O
+                         net (fo=31, unplaced)        0.519    12.173    u_ray_march/sel[0]
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.297 r  u_ray_march/g0_b1/O
+                         net (fo=2, unplaced)         0.460    12.757    u_ray_march/g0_b1_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.124    12.881 r  u_ray_march/x[0]_i_9/O
+                         net (fo=1, unplaced)         0.000    12.881    u_ray_march/x[0]_i_9_n_0
+                         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.550    13.431 r  u_ray_march/x_reg[0]_i_2/CO[3]
+                         net (fo=1, unplaced)         0.009    13.440    u_ray_march/x_reg[0]_i_2_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.554 r  u_ray_march/x_reg[4]_i_1/CO[3]
+                         net (fo=1, unplaced)         0.000    13.554    u_ray_march/x_reg[4]_i_1_n_0
+                         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.348    13.902 r  u_ray_march/x_reg[8]_i_1/O[1]
+                         net (fo=3, unplaced)         0.543    14.445    u_ray_march/x_reg[8]_i_1_n_6
+                         FDCE                                         r  u_ray_march/x_reg[9]_rep/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.439    12.129    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/x_reg[9]_rep/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.246    12.027    u_ray_march/x_reg[9]_rep
+  -------------------------------------------------------------------
+                         required time                         12.027    
+                         arrival time                         -14.445    
+  -------------------------------------------------------------------
+                         slack                                 -2.418    
+
+Slack (VIOLATED) :        -2.418ns  (required time - arrival time)
+  Source:                 u_ray_march/y_reg[16]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_ray_march/x_reg[9]_rep__0/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        11.992ns  (logic 3.003ns (25.042%)  route 8.989ns (74.958%))
+  Logic Levels:           14  (CARRY4=3 LUT3=1 LUT4=1 LUT5=2 LUT6=7)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.584     2.453    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/y_reg[16]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 r  u_ray_march/y_reg[16]/Q
+                         net (fo=2, unplaced)         0.976     3.885    u_ray_march/y_reg[16]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.180 r  u_ray_march/g0_b1_i_16/O
+                         net (fo=58, unplaced)        0.505     4.685    u_ray_march/g0_b1_i_16_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.809 f  u_ray_march/g0_b1_i_261/O
+                         net (fo=93, unplaced)        1.000     5.809    u_ray_march/g0_b1_i_261_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     5.933 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_743/O
+                         net (fo=1, unplaced)         0.902     6.835    u_ray_march/p_0_out_inferred__1/g0_b1_i_743_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     6.959 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_359/O
+                         net (fo=3, unplaced)         0.920     7.879    u_ray_march/p_0_out_inferred__1/g0_b1_i_359_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.124     8.003 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_143/O
+                         net (fo=1, unplaced)         0.902     8.905    u_ray_march/p_0_out_inferred__1/g0_b1_i_143_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.029 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_55/O
+                         net (fo=1, unplaced)         0.902     9.931    u_ray_march/p_0_out_inferred__1/g0_b1_i_55_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.124    10.055 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_23/O
+                         net (fo=1, unplaced)         0.902    10.957    u_ray_march/p_0_out_inferred__1/g0_b1_i_23_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    11.081 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_7/O
+                         net (fo=1, unplaced)         0.449    11.530    u_ray_march/p_0_out_inferred__1/g0_b1_i_7_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.124    11.654 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_1/O
+                         net (fo=31, unplaced)        0.519    12.173    u_ray_march/sel[0]
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.297 r  u_ray_march/g0_b1/O
+                         net (fo=2, unplaced)         0.460    12.757    u_ray_march/g0_b1_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.124    12.881 r  u_ray_march/x[0]_i_9/O
+                         net (fo=1, unplaced)         0.000    12.881    u_ray_march/x[0]_i_9_n_0
+                         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.550    13.431 r  u_ray_march/x_reg[0]_i_2/CO[3]
+                         net (fo=1, unplaced)         0.009    13.440    u_ray_march/x_reg[0]_i_2_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.554 r  u_ray_march/x_reg[4]_i_1/CO[3]
+                         net (fo=1, unplaced)         0.000    13.554    u_ray_march/x_reg[4]_i_1_n_0
+                         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.348    13.902 r  u_ray_march/x_reg[8]_i_1/O[1]
+                         net (fo=3, unplaced)         0.543    14.445    u_ray_march/x_reg[8]_i_1_n_6
+                         FDCE                                         r  u_ray_march/x_reg[9]_rep__0/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.439    12.129    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/x_reg[9]_rep__0/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.246    12.027    u_ray_march/x_reg[9]_rep__0
+  -------------------------------------------------------------------
+                         required time                         12.027    
+                         arrival time                         -14.445    
+  -------------------------------------------------------------------
+                         slack                                 -2.418    
+
+Slack (VIOLATED) :        -2.103ns  (required time - arrival time)
+  Source:                 u_ray_march/y_reg[16]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_ray_march/x_reg[8]_rep/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        11.688ns  (logic 2.890ns (24.726%)  route 8.798ns (75.274%))
+  Logic Levels:           14  (CARRY4=3 LUT3=1 LUT4=1 LUT5=2 LUT6=7)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.584     2.453    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/y_reg[16]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 r  u_ray_march/y_reg[16]/Q
+                         net (fo=2, unplaced)         0.976     3.885    u_ray_march/y_reg[16]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.180 r  u_ray_march/g0_b1_i_16/O
+                         net (fo=58, unplaced)        0.505     4.685    u_ray_march/g0_b1_i_16_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.809 f  u_ray_march/g0_b1_i_261/O
+                         net (fo=93, unplaced)        1.000     5.809    u_ray_march/g0_b1_i_261_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     5.933 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_743/O
+                         net (fo=1, unplaced)         0.902     6.835    u_ray_march/p_0_out_inferred__1/g0_b1_i_743_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     6.959 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_359/O
+                         net (fo=3, unplaced)         0.920     7.879    u_ray_march/p_0_out_inferred__1/g0_b1_i_359_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.124     8.003 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_143/O
+                         net (fo=1, unplaced)         0.902     8.905    u_ray_march/p_0_out_inferred__1/g0_b1_i_143_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.029 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_55/O
+                         net (fo=1, unplaced)         0.902     9.931    u_ray_march/p_0_out_inferred__1/g0_b1_i_55_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.124    10.055 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_23/O
+                         net (fo=1, unplaced)         0.902    10.957    u_ray_march/p_0_out_inferred__1/g0_b1_i_23_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    11.081 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_7/O
+                         net (fo=1, unplaced)         0.449    11.530    u_ray_march/p_0_out_inferred__1/g0_b1_i_7_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.124    11.654 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_1/O
+                         net (fo=31, unplaced)        0.519    12.173    u_ray_march/sel[0]
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.297 r  u_ray_march/g0_b1/O
+                         net (fo=2, unplaced)         0.460    12.757    u_ray_march/g0_b1_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.124    12.881 r  u_ray_march/x[0]_i_9/O
+                         net (fo=1, unplaced)         0.000    12.881    u_ray_march/x[0]_i_9_n_0
+                         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.550    13.431 r  u_ray_march/x_reg[0]_i_2/CO[3]
+                         net (fo=1, unplaced)         0.009    13.440    u_ray_march/x_reg[0]_i_2_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.554 r  u_ray_march/x_reg[4]_i_1/CO[3]
+                         net (fo=1, unplaced)         0.000    13.554    u_ray_march/x_reg[4]_i_1_n_0
+                         CARRY4 (Prop_carry4_CI_O[0])
+                                                      0.235    13.789 r  u_ray_march/x_reg[8]_i_1/O[0]
+                         net (fo=3, unplaced)         0.352    14.141    u_ray_march/x_reg[8]_i_1_n_7
+                         FDCE                                         r  u_ray_march/x_reg[8]_rep/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.439    12.129    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/x_reg[8]_rep/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.235    12.038    u_ray_march/x_reg[8]_rep
+  -------------------------------------------------------------------
+                         required time                         12.038    
+                         arrival time                         -14.141    
+  -------------------------------------------------------------------
+                         slack                                 -2.103    
+
+Slack (VIOLATED) :        -2.103ns  (required time - arrival time)
+  Source:                 u_ray_march/y_reg[16]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_ray_march/x_reg[8]_rep__0/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        11.688ns  (logic 2.890ns (24.726%)  route 8.798ns (75.274%))
+  Logic Levels:           14  (CARRY4=3 LUT3=1 LUT4=1 LUT5=2 LUT6=7)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.584     2.453    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/y_reg[16]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 r  u_ray_march/y_reg[16]/Q
+                         net (fo=2, unplaced)         0.976     3.885    u_ray_march/y_reg[16]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.180 r  u_ray_march/g0_b1_i_16/O
+                         net (fo=58, unplaced)        0.505     4.685    u_ray_march/g0_b1_i_16_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.809 f  u_ray_march/g0_b1_i_261/O
+                         net (fo=93, unplaced)        1.000     5.809    u_ray_march/g0_b1_i_261_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     5.933 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_743/O
+                         net (fo=1, unplaced)         0.902     6.835    u_ray_march/p_0_out_inferred__1/g0_b1_i_743_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     6.959 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_359/O
+                         net (fo=3, unplaced)         0.920     7.879    u_ray_march/p_0_out_inferred__1/g0_b1_i_359_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.124     8.003 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_143/O
+                         net (fo=1, unplaced)         0.902     8.905    u_ray_march/p_0_out_inferred__1/g0_b1_i_143_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.029 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_55/O
+                         net (fo=1, unplaced)         0.902     9.931    u_ray_march/p_0_out_inferred__1/g0_b1_i_55_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.124    10.055 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_23/O
+                         net (fo=1, unplaced)         0.902    10.957    u_ray_march/p_0_out_inferred__1/g0_b1_i_23_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    11.081 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_7/O
+                         net (fo=1, unplaced)         0.449    11.530    u_ray_march/p_0_out_inferred__1/g0_b1_i_7_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.124    11.654 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_1/O
+                         net (fo=31, unplaced)        0.519    12.173    u_ray_march/sel[0]
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.297 r  u_ray_march/g0_b1/O
+                         net (fo=2, unplaced)         0.460    12.757    u_ray_march/g0_b1_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.124    12.881 r  u_ray_march/x[0]_i_9/O
+                         net (fo=1, unplaced)         0.000    12.881    u_ray_march/x[0]_i_9_n_0
+                         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.550    13.431 r  u_ray_march/x_reg[0]_i_2/CO[3]
+                         net (fo=1, unplaced)         0.009    13.440    u_ray_march/x_reg[0]_i_2_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.554 r  u_ray_march/x_reg[4]_i_1/CO[3]
+                         net (fo=1, unplaced)         0.000    13.554    u_ray_march/x_reg[4]_i_1_n_0
+                         CARRY4 (Prop_carry4_CI_O[0])
+                                                      0.235    13.789 r  u_ray_march/x_reg[8]_i_1/O[0]
+                         net (fo=3, unplaced)         0.352    14.141    u_ray_march/x_reg[8]_i_1_n_7
+                         FDCE                                         r  u_ray_march/x_reg[8]_rep__0/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.439    12.129    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/x_reg[8]_rep__0/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.235    12.038    u_ray_march/x_reg[8]_rep__0
+  -------------------------------------------------------------------
+                         required time                         12.038    
+                         arrival time                         -14.141    
+  -------------------------------------------------------------------
+                         slack                                 -2.103    
+
+Slack (VIOLATED) :        -2.096ns  (required time - arrival time)
+  Source:                 u_ray_march/y_reg[16]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_ray_march/y_reg[8]_rep/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        11.681ns  (logic 2.890ns (24.741%)  route 8.791ns (75.259%))
+  Logic Levels:           14  (CARRY4=3 LUT3=1 LUT4=1 LUT5=2 LUT6=7)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.129ns = ( 12.129 - 10.000 ) 
+    Source Clock Delay      (SCD):    2.453ns
+    Clock Pessimism Removal (CPR):    0.179ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=0)                   0.000     0.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.973     0.973 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.800     1.773    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.096     1.869 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.584     2.453    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/y_reg[16]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.456     2.909 r  u_ray_march/y_reg[16]/Q
+                         net (fo=2, unplaced)         0.976     3.885    u_ray_march/y_reg[16]
+                         LUT6 (Prop_lut6_I0_O)        0.295     4.180 r  u_ray_march/g0_b1_i_16/O
+                         net (fo=58, unplaced)        0.505     4.685    u_ray_march/g0_b1_i_16_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.124     4.809 f  u_ray_march/g0_b1_i_261/O
+                         net (fo=93, unplaced)        1.000     5.809    u_ray_march/g0_b1_i_261_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     5.933 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_743/O
+                         net (fo=1, unplaced)         0.902     6.835    u_ray_march/p_0_out_inferred__1/g0_b1_i_743_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     6.959 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_359/O
+                         net (fo=3, unplaced)         0.920     7.879    u_ray_march/p_0_out_inferred__1/g0_b1_i_359_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.124     8.003 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_143/O
+                         net (fo=1, unplaced)         0.902     8.905    u_ray_march/p_0_out_inferred__1/g0_b1_i_143_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124     9.029 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_55/O
+                         net (fo=1, unplaced)         0.902     9.931    u_ray_march/p_0_out_inferred__1/g0_b1_i_55_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.124    10.055 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_23/O
+                         net (fo=1, unplaced)         0.902    10.957    u_ray_march/p_0_out_inferred__1/g0_b1_i_23_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.124    11.081 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_7/O
+                         net (fo=1, unplaced)         0.449    11.530    u_ray_march/p_0_out_inferred__1/g0_b1_i_7_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.124    11.654 r  u_ray_march/p_0_out_inferred__1/g0_b1_i_1/O
+                         net (fo=31, unplaced)        0.519    12.173    u_ray_march/sel[0]
+                         LUT6 (Prop_lut6_I0_O)        0.124    12.297 r  u_ray_march/g0_b1__0/O
+                         net (fo=2, unplaced)         0.460    12.757    u_ray_march/p_0_out[1]
+                         LUT4 (Prop_lut4_I0_O)        0.124    12.881 r  u_ray_march/y[0]_i_8/O
+                         net (fo=1, unplaced)         0.000    12.881    u_ray_march/y[0]_i_8_n_0
+                         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.550    13.431 r  u_ray_march/y_reg[0]_i_1/CO[3]
+                         net (fo=1, unplaced)         0.009    13.440    u_ray_march/y_reg[0]_i_1_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    13.554 r  u_ray_march/y_reg[4]_i_1/CO[3]
+                         net (fo=1, unplaced)         0.000    13.554    u_ray_march/y_reg[4]_i_1_n_0
+                         CARRY4 (Prop_carry4_CI_O[0])
+                                                      0.235    13.789 r  u_ray_march/y_reg[8]_i_1/O[0]
+                         net (fo=2, unplaced)         0.345    14.134    u_ray_march/y_reg[8]_i_1_n_7
+                         FDCE                                         r  u_ray_march/y_reg[8]_rep/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=0)                   0.000    10.000    clk
+                         IBUF (Prop_ibuf_I_O)         0.840    10.840 r  clk_IBUF_inst/O
+                         net (fo=1, unplaced)         0.760    11.599    clk_IBUF
+                         BUFG (Prop_bufg_I_O)         0.091    11.690 r  clk_IBUF_BUFG_inst/O
+                         net (fo=257, unplaced)       0.439    12.129    u_ray_march/clk_IBUF_BUFG
+                         FDCE                                         r  u_ray_march/y_reg[8]_rep/C
+                         clock pessimism              0.179    12.308    
+                         clock uncertainty           -0.035    12.273    
+                         FDCE (Setup_fdce_C_D)       -0.235    12.038    u_ray_march/y_reg[8]_rep
+  -------------------------------------------------------------------
+                         required time                         12.038    
+                         arrival time                         -14.134    
+  -------------------------------------------------------------------
+                         slack                                 -2.096    
+
+
+
+
