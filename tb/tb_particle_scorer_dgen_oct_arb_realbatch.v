@@ -16,6 +16,7 @@ module tb_particle_scorer_dgen_oct_arb_realbatch;
     localparam RD_W     = 9;
     localparam ACC_W    = 20;
     localparam ANGLE_W  = 19;
+    localparam THETA_RAW_W = 24;
     localparam NUM_RAYS = 60;
     localparam NUM_BATCHES = 63;
 
@@ -26,7 +27,7 @@ module tb_particle_scorer_dgen_oct_arb_realbatch;
     reg                        pstart0, pstart1, pstart2, pstart3, pstart4, pstart5, pstart6, pstart7;
     reg  signed [RM_POS_W-1:0] px0_0, py0_0, px0_1, py0_1, px0_2, py0_2, px0_3, py0_3;
     reg  signed [RM_POS_W-1:0] px0_4, py0_4, px0_5, py0_5, px0_6, py0_6, px0_7, py0_7;
-    reg  signed [ANGLE_W-1:0]  th0, th1, th2, th3, th4, th5, th6, th7;
+    reg  signed [THETA_RAW_W-1:0] th0, th1, th2, th3, th4, th5, th6, th7;
     reg                        bstart0, bstart1, bstart2, bstart3, bstart4, bstart5, bstart6, bstart7;
     reg  [RD_W-1:0]            r0, r1, r2, r3, r4, r5, r6, r7;
     wire                       bdone0, pdone0, bdone1, pdone1, bdone2, pdone2, bdone3, pdone3;
@@ -35,40 +36,40 @@ module tb_particle_scorer_dgen_oct_arb_realbatch;
 
     particle_scorer_dgen_oct_arb #(.RM_POS_W(RM_POS_W), .RD_W(RD_W), .ACC_W(ACC_W), .ANGLE_W(ANGLE_W)) u_oct (
         .clk(clk), .rst_n(rst_n),
-        .particle_start0(pstart0), .x0_0(px0_0), .y0_0(py0_0), .theta0(th0),
+        .particle_start0(pstart0), .x0_0(px0_0), .y0_0(py0_0), .theta_raw0(th0),
         .beam_start0(bstart0), .r_obs0(r0),
         .beam_done0(bdone0), .particle_done0(pdone0), .weight_o0(weight0),
-        .particle_start1(pstart1), .x0_1(px0_1), .y0_1(py0_1), .theta1(th1),
+        .particle_start1(pstart1), .x0_1(px0_1), .y0_1(py0_1), .theta_raw1(th1),
         .beam_start1(bstart1), .r_obs1(r1),
         .beam_done1(bdone1), .particle_done1(pdone1), .weight_o1(weight1),
-        .particle_start2(pstart2), .x0_2(px0_2), .y0_2(py0_2), .theta2(th2),
+        .particle_start2(pstart2), .x0_2(px0_2), .y0_2(py0_2), .theta_raw2(th2),
         .beam_start2(bstart2), .r_obs2(r2),
         .beam_done2(bdone2), .particle_done2(pdone2), .weight_o2(weight2),
-        .particle_start3(pstart3), .x0_3(px0_3), .y0_3(py0_3), .theta3(th3),
+        .particle_start3(pstart3), .x0_3(px0_3), .y0_3(py0_3), .theta_raw3(th3),
         .beam_start3(bstart3), .r_obs3(r3),
         .beam_done3(bdone3), .particle_done3(pdone3), .weight_o3(weight3),
-        .particle_start4(pstart4), .x0_4(px0_4), .y0_4(py0_4), .theta4(th4),
+        .particle_start4(pstart4), .x0_4(px0_4), .y0_4(py0_4), .theta_raw4(th4),
         .beam_start4(bstart4), .r_obs4(r4),
         .beam_done4(bdone4), .particle_done4(pdone4), .weight_o4(weight4),
-        .particle_start5(pstart5), .x0_5(px0_5), .y0_5(py0_5), .theta5(th5),
+        .particle_start5(pstart5), .x0_5(px0_5), .y0_5(py0_5), .theta_raw5(th5),
         .beam_start5(bstart5), .r_obs5(r5),
         .beam_done5(bdone5), .particle_done5(pdone5), .weight_o5(weight5),
-        .particle_start6(pstart6), .x0_6(px0_6), .y0_6(py0_6), .theta6(th6),
+        .particle_start6(pstart6), .x0_6(px0_6), .y0_6(py0_6), .theta_raw6(th6),
         .beam_start6(bstart6), .r_obs6(r6),
         .beam_done6(bdone6), .particle_done6(pdone6), .weight_o6(weight6),
-        .particle_start7(pstart7), .x0_7(px0_7), .y0_7(py0_7), .theta7(th7),
+        .particle_start7(pstart7), .x0_7(px0_7), .y0_7(py0_7), .theta_raw7(th7),
         .beam_start7(bstart7), .r_obs7(r7),
         .beam_done7(bdone7), .particle_done7(pdone7), .weight_o7(weight7)
     );
 
-    reg [RD_W-1:0] rs0 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy0 [0:1]; reg signed [ANGLE_W-1:0] thv0 [0:0];
-    reg [RD_W-1:0] rs1 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy1 [0:1]; reg signed [ANGLE_W-1:0] thv1 [0:0];
-    reg [RD_W-1:0] rs2 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy2 [0:1]; reg signed [ANGLE_W-1:0] thv2 [0:0];
-    reg [RD_W-1:0] rs3 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy3 [0:1]; reg signed [ANGLE_W-1:0] thv3 [0:0];
-    reg [RD_W-1:0] rs4 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy4 [0:1]; reg signed [ANGLE_W-1:0] thv4 [0:0];
-    reg [RD_W-1:0] rs5 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy5 [0:1]; reg signed [ANGLE_W-1:0] thv5 [0:0];
-    reg [RD_W-1:0] rs6 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy6 [0:1]; reg signed [ANGLE_W-1:0] thv6 [0:0];
-    reg [RD_W-1:0] rs7 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy7 [0:1]; reg signed [ANGLE_W-1:0] thv7 [0:0];
+    reg [RD_W-1:0] rs0 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy0 [0:1]; reg signed [THETA_RAW_W-1:0] thv0 [0:0];
+    reg [RD_W-1:0] rs1 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy1 [0:1]; reg signed [THETA_RAW_W-1:0] thv1 [0:0];
+    reg [RD_W-1:0] rs2 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy2 [0:1]; reg signed [THETA_RAW_W-1:0] thv2 [0:0];
+    reg [RD_W-1:0] rs3 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy3 [0:1]; reg signed [THETA_RAW_W-1:0] thv3 [0:0];
+    reg [RD_W-1:0] rs4 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy4 [0:1]; reg signed [THETA_RAW_W-1:0] thv4 [0:0];
+    reg [RD_W-1:0] rs5 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy5 [0:1]; reg signed [THETA_RAW_W-1:0] thv5 [0:0];
+    reg [RD_W-1:0] rs6 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy6 [0:1]; reg signed [THETA_RAW_W-1:0] thv6 [0:0];
+    reg [RD_W-1:0] rs7 [0:NUM_RAYS-1]; reg signed [RM_POS_W-1:0] xy7 [0:1]; reg signed [THETA_RAW_W-1:0] thv7 [0:0];
 
     reg [256*8-1:0] fname;
     integer batch;
@@ -76,28 +77,28 @@ module tb_particle_scorer_dgen_oct_arb_realbatch;
     task load_batch(input integer b); begin
         $sformat(fname, "rf_b%0d_p0_r.hex",  b); $readmemh(fname, rs0);
         $sformat(fname, "rf_b%0d_p0_x0y0.hex", b); $readmemh(fname, xy0);
-        $sformat(fname, "rf_b%0d_p0_theta.hex", b); $readmemh(fname, thv0);
+        $sformat(fname, "rf_b%0d_p0_theta_raw.hex", b); $readmemh(fname, thv0);
         $sformat(fname, "rf_b%0d_p1_r.hex",  b); $readmemh(fname, rs1);
         $sformat(fname, "rf_b%0d_p1_x0y0.hex", b); $readmemh(fname, xy1);
-        $sformat(fname, "rf_b%0d_p1_theta.hex", b); $readmemh(fname, thv1);
+        $sformat(fname, "rf_b%0d_p1_theta_raw.hex", b); $readmemh(fname, thv1);
         $sformat(fname, "rf_b%0d_p2_r.hex",  b); $readmemh(fname, rs2);
         $sformat(fname, "rf_b%0d_p2_x0y0.hex", b); $readmemh(fname, xy2);
-        $sformat(fname, "rf_b%0d_p2_theta.hex", b); $readmemh(fname, thv2);
+        $sformat(fname, "rf_b%0d_p2_theta_raw.hex", b); $readmemh(fname, thv2);
         $sformat(fname, "rf_b%0d_p3_r.hex",  b); $readmemh(fname, rs3);
         $sformat(fname, "rf_b%0d_p3_x0y0.hex", b); $readmemh(fname, xy3);
-        $sformat(fname, "rf_b%0d_p3_theta.hex", b); $readmemh(fname, thv3);
+        $sformat(fname, "rf_b%0d_p3_theta_raw.hex", b); $readmemh(fname, thv3);
         $sformat(fname, "rf_b%0d_p4_r.hex",  b); $readmemh(fname, rs4);
         $sformat(fname, "rf_b%0d_p4_x0y0.hex", b); $readmemh(fname, xy4);
-        $sformat(fname, "rf_b%0d_p4_theta.hex", b); $readmemh(fname, thv4);
+        $sformat(fname, "rf_b%0d_p4_theta_raw.hex", b); $readmemh(fname, thv4);
         $sformat(fname, "rf_b%0d_p5_r.hex",  b); $readmemh(fname, rs5);
         $sformat(fname, "rf_b%0d_p5_x0y0.hex", b); $readmemh(fname, xy5);
-        $sformat(fname, "rf_b%0d_p5_theta.hex", b); $readmemh(fname, thv5);
+        $sformat(fname, "rf_b%0d_p5_theta_raw.hex", b); $readmemh(fname, thv5);
         $sformat(fname, "rf_b%0d_p6_r.hex",  b); $readmemh(fname, rs6);
         $sformat(fname, "rf_b%0d_p6_x0y0.hex", b); $readmemh(fname, xy6);
-        $sformat(fname, "rf_b%0d_p6_theta.hex", b); $readmemh(fname, thv6);
+        $sformat(fname, "rf_b%0d_p6_theta_raw.hex", b); $readmemh(fname, thv6);
         $sformat(fname, "rf_b%0d_p7_r.hex",  b); $readmemh(fname, rs7);
         $sformat(fname, "rf_b%0d_p7_x0y0.hex", b); $readmemh(fname, xy7);
-        $sformat(fname, "rf_b%0d_p7_theta.hex", b); $readmemh(fname, thv7);
+        $sformat(fname, "rf_b%0d_p7_theta_raw.hex", b); $readmemh(fname, thv7);
     end endtask
 
     integer i0, i1, i2, i3, i4, i5, i6, i7;
@@ -129,6 +130,7 @@ module tb_particle_scorer_dgen_oct_arb_realbatch;
 
     real t_start, t_end;
     integer x_count;
+    integer fails_sanity;
 
     initial begin
         pstart0=0;bstart0=0;r0=0;px0_0=0;py0_0=0;th0=0;
@@ -145,6 +147,7 @@ module tb_particle_scorer_dgen_oct_arb_realbatch;
         @(posedge clk);
 
         x_count = 0;
+        fails_sanity = 0;
         t_start = $realtime;
         for (batch = 0; batch < NUM_BATCHES; batch = batch + 1) begin
             load_batch(batch);
@@ -153,6 +156,20 @@ module tb_particle_scorer_dgen_oct_arb_realbatch;
                 drive_particle4(); drive_particle5(); drive_particle6(); drive_particle7();
             join
             if (^weight0 === 1'bx) x_count = x_count + 1;
+            if (batch == 0) begin
+                // bench/cordic_recompute_001.npz의 파티클0~7 기대값(gen_dgen_accuracy_test.py,
+                // RTL의 CORDIC을 비트단위로 재현한 파이썬 모델) — theta_wrap 통합 후에도
+                // 정확성이 유지되는지 8개 다(감기 필요없는 것/필요한 것 섞어서) 확인.
+                if (weight0 !== -46170) begin fails_sanity=fails_sanity+1; $display("SANITY FAIL p0: %0d (exp -46170)", weight0); end
+                if (weight1 !== -50615) begin fails_sanity=fails_sanity+1; $display("SANITY FAIL p1: %0d (exp -50615)", weight1); end
+                if (weight2 !== -50388) begin fails_sanity=fails_sanity+1; $display("SANITY FAIL p2: %0d (exp -50388)", weight2); end
+                if (weight3 !== -46390) begin fails_sanity=fails_sanity+1; $display("SANITY FAIL p3: %0d (exp -46390)", weight3); end
+                if (weight4 !== -50044) begin fails_sanity=fails_sanity+1; $display("SANITY FAIL p4: %0d (exp -50044)", weight4); end
+                if (weight5 !== -49927) begin fails_sanity=fails_sanity+1; $display("SANITY FAIL p5: %0d (exp -49927)", weight5); end
+                if (weight6 !== -48818) begin fails_sanity=fails_sanity+1; $display("SANITY FAIL p6: %0d (exp -48818)", weight6); end
+                if (weight7 !== -50209) begin fails_sanity=fails_sanity+1; $display("SANITY FAIL p7: %0d (exp -50209)", weight7); end
+                if (fails_sanity == 0) $display("SANITY: 배치0 파티클0~7 전부 CORDIC 파이썬 재현값과 정확히 일치(theta_wrap 포함)");
+            end
         end
         @(posedge clk);
         t_end = $realtime;

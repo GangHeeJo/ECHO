@@ -14,14 +14,15 @@ module particle_scorer_dgen_oct_arb #(
     parameter ACC_W    = 20,
     parameter NUM_RAYS = 60,
     parameter BEAM_W   = 6,
-    parameter ANGLE_W  = 19
+    parameter ANGLE_W  = 19,
+    parameter THETA_RAW_W = 24
 ) (
     input  wire                        clk,
     input  wire                        rst_n,
 
     input  wire                        particle_start0,
     input  wire signed [RM_POS_W-1:0]  x0_0, y0_0,
-    input  wire signed [ANGLE_W-1:0]   theta0,
+    input  wire signed [THETA_RAW_W-1:0] theta_raw0,
     input  wire                        beam_start0,
     input  wire [RD_W-1:0]             r_obs0,
     output wire                        beam_done0,
@@ -30,7 +31,7 @@ module particle_scorer_dgen_oct_arb #(
 
     input  wire                        particle_start1,
     input  wire signed [RM_POS_W-1:0]  x0_1, y0_1,
-    input  wire signed [ANGLE_W-1:0]   theta1,
+    input  wire signed [THETA_RAW_W-1:0] theta_raw1,
     input  wire                        beam_start1,
     input  wire [RD_W-1:0]             r_obs1,
     output wire                        beam_done1,
@@ -39,7 +40,7 @@ module particle_scorer_dgen_oct_arb #(
 
     input  wire                        particle_start2,
     input  wire signed [RM_POS_W-1:0]  x0_2, y0_2,
-    input  wire signed [ANGLE_W-1:0]   theta2,
+    input  wire signed [THETA_RAW_W-1:0] theta_raw2,
     input  wire                        beam_start2,
     input  wire [RD_W-1:0]             r_obs2,
     output wire                        beam_done2,
@@ -48,7 +49,7 @@ module particle_scorer_dgen_oct_arb #(
 
     input  wire                        particle_start3,
     input  wire signed [RM_POS_W-1:0]  x0_3, y0_3,
-    input  wire signed [ANGLE_W-1:0]   theta3,
+    input  wire signed [THETA_RAW_W-1:0] theta_raw3,
     input  wire                        beam_start3,
     input  wire [RD_W-1:0]             r_obs3,
     output wire                        beam_done3,
@@ -57,7 +58,7 @@ module particle_scorer_dgen_oct_arb #(
 
     input  wire                        particle_start4,
     input  wire signed [RM_POS_W-1:0]  x0_4, y0_4,
-    input  wire signed [ANGLE_W-1:0]   theta4,
+    input  wire signed [THETA_RAW_W-1:0] theta_raw4,
     input  wire                        beam_start4,
     input  wire [RD_W-1:0]             r_obs4,
     output wire                        beam_done4,
@@ -66,7 +67,7 @@ module particle_scorer_dgen_oct_arb #(
 
     input  wire                        particle_start5,
     input  wire signed [RM_POS_W-1:0]  x0_5, y0_5,
-    input  wire signed [ANGLE_W-1:0]   theta5,
+    input  wire signed [THETA_RAW_W-1:0] theta_raw5,
     input  wire                        beam_start5,
     input  wire [RD_W-1:0]             r_obs5,
     output wire                        beam_done5,
@@ -75,7 +76,7 @@ module particle_scorer_dgen_oct_arb #(
 
     input  wire                        particle_start6,
     input  wire signed [RM_POS_W-1:0]  x0_6, y0_6,
-    input  wire signed [ANGLE_W-1:0]   theta6,
+    input  wire signed [THETA_RAW_W-1:0] theta_raw6,
     input  wire                        beam_start6,
     input  wire [RD_W-1:0]             r_obs6,
     output wire                        beam_done6,
@@ -84,7 +85,7 @@ module particle_scorer_dgen_oct_arb #(
 
     input  wire                        particle_start7,
     input  wire signed [RM_POS_W-1:0]  x0_7, y0_7,
-    input  wire signed [ANGLE_W-1:0]   theta7,
+    input  wire signed [THETA_RAW_W-1:0] theta_raw7,
     input  wire                        beam_start7,
     input  wire [RD_W-1:0]             r_obs7,
     output wire                        beam_done7,
@@ -144,7 +145,7 @@ module particle_scorer_dgen_oct_arb #(
                            .DATA_W(DATA_W), .ACC_W(ACC_W), .NUM_RAYS(NUM_RAYS),
                            .BEAM_W(BEAM_W), .ANGLE_W(ANGLE_W)) u_scorer0 (
         .clk(clk), .rst_n(rst_n),
-        .particle_start(particle_start0), .x0(x0_0), .y0(y0_0), .theta(theta0),
+        .particle_start(particle_start0), .x0(x0_0), .y0(y0_0), .theta_raw(theta_raw0),
         .beam_start(beam_start0), .r_obs(r_obs0),
         .beam_done(beam_done0), .particle_done(particle_done0), .weight_o(weight_o0),
         .table_addr(table_addr[0]), .table_data(table_data), .req(req[0]), .gnt(gnt[0])
@@ -154,7 +155,7 @@ module particle_scorer_dgen_oct_arb #(
                            .DATA_W(DATA_W), .ACC_W(ACC_W), .NUM_RAYS(NUM_RAYS),
                            .BEAM_W(BEAM_W), .ANGLE_W(ANGLE_W)) u_scorer1 (
         .clk(clk), .rst_n(rst_n),
-        .particle_start(particle_start1), .x0(x0_1), .y0(y0_1), .theta(theta1),
+        .particle_start(particle_start1), .x0(x0_1), .y0(y0_1), .theta_raw(theta_raw1),
         .beam_start(beam_start1), .r_obs(r_obs1),
         .beam_done(beam_done1), .particle_done(particle_done1), .weight_o(weight_o1),
         .table_addr(table_addr[1]), .table_data(table_data), .req(req[1]), .gnt(gnt[1])
@@ -164,7 +165,7 @@ module particle_scorer_dgen_oct_arb #(
                            .DATA_W(DATA_W), .ACC_W(ACC_W), .NUM_RAYS(NUM_RAYS),
                            .BEAM_W(BEAM_W), .ANGLE_W(ANGLE_W)) u_scorer2 (
         .clk(clk), .rst_n(rst_n),
-        .particle_start(particle_start2), .x0(x0_2), .y0(y0_2), .theta(theta2),
+        .particle_start(particle_start2), .x0(x0_2), .y0(y0_2), .theta_raw(theta_raw2),
         .beam_start(beam_start2), .r_obs(r_obs2),
         .beam_done(beam_done2), .particle_done(particle_done2), .weight_o(weight_o2),
         .table_addr(table_addr[2]), .table_data(table_data), .req(req[2]), .gnt(gnt[2])
@@ -174,7 +175,7 @@ module particle_scorer_dgen_oct_arb #(
                            .DATA_W(DATA_W), .ACC_W(ACC_W), .NUM_RAYS(NUM_RAYS),
                            .BEAM_W(BEAM_W), .ANGLE_W(ANGLE_W)) u_scorer3 (
         .clk(clk), .rst_n(rst_n),
-        .particle_start(particle_start3), .x0(x0_3), .y0(y0_3), .theta(theta3),
+        .particle_start(particle_start3), .x0(x0_3), .y0(y0_3), .theta_raw(theta_raw3),
         .beam_start(beam_start3), .r_obs(r_obs3),
         .beam_done(beam_done3), .particle_done(particle_done3), .weight_o(weight_o3),
         .table_addr(table_addr[3]), .table_data(table_data), .req(req[3]), .gnt(gnt[3])
@@ -184,7 +185,7 @@ module particle_scorer_dgen_oct_arb #(
                            .DATA_W(DATA_W), .ACC_W(ACC_W), .NUM_RAYS(NUM_RAYS),
                            .BEAM_W(BEAM_W), .ANGLE_W(ANGLE_W)) u_scorer4 (
         .clk(clk), .rst_n(rst_n),
-        .particle_start(particle_start4), .x0(x0_4), .y0(y0_4), .theta(theta4),
+        .particle_start(particle_start4), .x0(x0_4), .y0(y0_4), .theta_raw(theta_raw4),
         .beam_start(beam_start4), .r_obs(r_obs4),
         .beam_done(beam_done4), .particle_done(particle_done4), .weight_o(weight_o4),
         .table_addr(table_addr[4]), .table_data(table_data), .req(req[4]), .gnt(gnt[4])
@@ -194,7 +195,7 @@ module particle_scorer_dgen_oct_arb #(
                            .DATA_W(DATA_W), .ACC_W(ACC_W), .NUM_RAYS(NUM_RAYS),
                            .BEAM_W(BEAM_W), .ANGLE_W(ANGLE_W)) u_scorer5 (
         .clk(clk), .rst_n(rst_n),
-        .particle_start(particle_start5), .x0(x0_5), .y0(y0_5), .theta(theta5),
+        .particle_start(particle_start5), .x0(x0_5), .y0(y0_5), .theta_raw(theta_raw5),
         .beam_start(beam_start5), .r_obs(r_obs5),
         .beam_done(beam_done5), .particle_done(particle_done5), .weight_o(weight_o5),
         .table_addr(table_addr[5]), .table_data(table_data), .req(req[5]), .gnt(gnt[5])
@@ -204,7 +205,7 @@ module particle_scorer_dgen_oct_arb #(
                            .DATA_W(DATA_W), .ACC_W(ACC_W), .NUM_RAYS(NUM_RAYS),
                            .BEAM_W(BEAM_W), .ANGLE_W(ANGLE_W)) u_scorer6 (
         .clk(clk), .rst_n(rst_n),
-        .particle_start(particle_start6), .x0(x0_6), .y0(y0_6), .theta(theta6),
+        .particle_start(particle_start6), .x0(x0_6), .y0(y0_6), .theta_raw(theta_raw6),
         .beam_start(beam_start6), .r_obs(r_obs6),
         .beam_done(beam_done6), .particle_done(particle_done6), .weight_o(weight_o6),
         .table_addr(table_addr[6]), .table_data(table_data), .req(req[6]), .gnt(gnt[6])
@@ -214,7 +215,7 @@ module particle_scorer_dgen_oct_arb #(
                            .DATA_W(DATA_W), .ACC_W(ACC_W), .NUM_RAYS(NUM_RAYS),
                            .BEAM_W(BEAM_W), .ANGLE_W(ANGLE_W)) u_scorer7 (
         .clk(clk), .rst_n(rst_n),
-        .particle_start(particle_start7), .x0(x0_7), .y0(y0_7), .theta(theta7),
+        .particle_start(particle_start7), .x0(x0_7), .y0(y0_7), .theta_raw(theta_raw7),
         .beam_start(beam_start7), .r_obs(r_obs7),
         .beam_done(beam_done7), .particle_done(particle_done7), .weight_o(weight_o7),
         .table_addr(table_addr[7]), .table_data(table_data), .req(req[7]), .gnt(gnt[7])
