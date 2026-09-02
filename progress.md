@@ -1017,6 +1017,25 @@ post-route는 진짜 톱이라 이 문제 없음 — OOC 모드를 쓴 8-way 한
 해소됨, 최종 unrouted net 0개) — 배선 자체는 성공했지만 이 칩엔 8-way가
 꽤 빡빡했다는 신호. `docs/problem_statement.md`에도 반영.
 
+**post-route `phys_opt_design` A/B(사용자 제안, RTL 변경 없는 저위험 실험)**:
+GUI에서 사용자가 타이밍 리포트를 직접 열어 크리티컬 패스(Path 1,
+`u_scorer2/u_ray_march`, Data Path 12.359ns = logic 3.244ns(26%) + route
+9.115ns(74%), high fanout 310)를 분석 — "8개 scorer마다 복제된
+`ray_march_edt`가 여전히 병목이지 arbiter/공유 BRAM은 아니다"라는 정확한
+진단. 다만 fanout이 커서 배선이 넓게 퍼진 게 원인이라는 결론까지 나온 김에,
+"크리티컬 패스를 완전히 없애도(WNS=0) 최대 0.19ms만 아낄 수 있는데, Jetson
+전처리 비용 0.782ms가 그 4배라 결론은 안 바뀐다"는 걸 계산으로 먼저 확인한
+뒤, "그래도 RTL 안 건드리는 공짜 실험이니 해볼 가치는 있다"는 판단으로
+`route_design` 뒤에 `phys_opt_design -directive AggressiveExplore`만 추가해
+A/B: **WNS -2.653ns → -2.532ns(0.121ns 개선, 약 4.6%)**, TNS도 소폭 개선
+(-650.667→-643.064), Failing Endpoints는 동일(569 — 개별 경로가 나아졌지
+"실패"로 분류되는 경로 수 자체는 안 바뀜). 크리티컬 패스는 다른 인스턴스
+(`u_scorer4`)로 옮겨갔지만 route 비중은 거의 그대로(72.9% vs 73.8%) — 근본
+원인(넓게 퍼진 fanout)은 그대로, 국소적으로만 조금 나아진 것. 500파티클
+시간으로 환산하면 0.915ms → 약 0.906ms(≈9μs 절감) — 계산했던 대로 미미함,
+결론(direction generator가 우선) 그대로 유지. 공짜 실험이라 이 설정은 유지할
+가치 있음(`synth/synth_oct_physopt.tcl`로 커밋).
+
 **남은 것 / 다음 세션 우선순위**:
 1. **direction generator 설계 착수** — 이번 세션이 사실상 결정한 다음 큰
    과제. (x,y,θ,beam_id) → (dx,dy)를 FPGA 내부에서 만드는 방법 후보:
