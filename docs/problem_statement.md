@@ -160,6 +160,18 @@ generator 내장)가 사실상 필수 조건으로 보인다 — 다음 세션 �
 결론(현재 인터페이스로는 18~19% 느림, direction generator 필요)은 그대로
 유지됨, post-route가 결론을 안 뒤집었다는 뜻.
 
+**⚠️ 위 8-way 수치의 캐비엇 — `HD.CLK_SRC` 미설정**: GUI에서 같은 tcl을 독립
+재실행해 WNS -2.659ns(배치 -2.653ns와 거의 일치, 재현성 확인)를 얻었으나,
+이번엔 `WARNING: [Timing 38-242] HD.CLK_SRC of clock port "clk" is not set.
+In out-of-context mode, this prevents timing estimation for clock
+delay/skew`를 확인함. oct_arb를 IO 핀 부족(850포트 vs 210핀) 때문에
+`-mode out_of_context`로 돌린 대가로, **클럭이 실제 어디서 들어오는지
+모르는 상태라 클럭 네트워크의 delay/skew 추정이 불완전**함 — 즉 8-way의
+post-route 수치는 "내부 로직 경로는 진짜 실측, 클럭 모델은 불완전한 추정"
+이라는 조건이 붙어있었음(1파티클 `particle_scorer`는 진짜 top이라 해당
+없음). 완전히 없애려면 실제 top-level 랩퍼 안에 넣거나 `HD.CLK_SRC`를
+수동 지정해야 함 — 다음 세션 검토 대상.
+
 ## 목표 (재정의)
 
 **A. 학습/포트폴리오 목표** (불변)

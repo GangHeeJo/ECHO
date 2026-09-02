@@ -1001,6 +1001,22 @@ vs 이 칩 실사용핀 210개로 `place_design` 자체가 실패 — oct_arb는
 1.428ms로 **약 1.56배 빠름**(post-synth 추정 1.59배에서 소폭 하향, 결론은
 동일). `docs/problem_statement.md` "2026-09-02 추가3"에도 반영.
 
+**⚠️ 8-way post-route 수치에 새로 발견한 캐비엇 — `HD.CLK_SRC` 미설정**: 사용자가
+GUI(Vivado, `start_gui` + Tcl Console)에서 `synth_oct_route.tcl`을 독립적으로
+한 번 더 돌려봄 — 결과 WNS -2.659ns(배치 모드 -2.653ns와 거의 일치, 재현성
+확인엔 좋은 신호). 근데 이번엔 `report_timing_summary` 단계에서
+`WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk" is not
+set. In out-of-context mode, this prevents timing estimation for clock
+delay/skew`가 뜬 걸 발견함 — **`-mode out_of_context`로 IO 핀 부족 문제를
+우회한 대가로, 클럭이 실제로 어디서 들어오는지(BUFG 위치)를 모르는 상태라
+클럭 자체의 delay/skew 추정이 불완전**하다는 뜻. 즉 8-way의 -2.653/-2.659ns는
+**"내부 로직 경로는 진짜 배치·배선된 실측"이지만 클럭 네트워크 모델은
+불완전한 추정**이라는 조건이 하나 더 있음(1파티클 `particle_scorer` 단독
+post-route는 진짜 톱이라 이 문제 없음 — OOC 모드를 쓴 8-way 한정 캐비엇).
+라우팅 혼잡도 실제로 있었음(East 방향 최대 91.18%, rip-up/reroute로 완전
+해소됨, 최종 unrouted net 0개) — 배선 자체는 성공했지만 이 칩엔 8-way가
+꽤 빡빡했다는 신호. `docs/problem_statement.md`에도 반영.
+
 **남은 것 / 다음 세션 우선순위**:
 1. **direction generator 설계 착수** — 이번 세션이 사실상 결정한 다음 큰
    과제. (x,y,θ,beam_id) → (dx,dy)를 FPGA 내부에서 만드는 방법 후보:
@@ -1010,4 +1026,7 @@ vs 이 칩 실사용핀 210개로 `place_design` 자체가 실패 — oct_arb는
    (Q9.8→Q9.10 등), EDT 근사 대신 정밀 마칭과 비교 등으로 어디서 오차가
    생기는지 분리해볼 것.
 3. Jetson↔FPGA 통신 비용(5단계 계획의 마지막 항목) — 아직 완전 미착수.
+4. (여력 되면) 8-way를 진짜 top-level(더 큰 랩퍼 안에 실제로 붙여서, 또는
+   `set_property HD.CLK_SRC`를 수동 지정해서) 재검증 — HD.CLK_SRC 캐비엇을
+   완전히 없애려면 필요.
 
