@@ -815,3 +815,79 @@ place&route 이후엔 오히려 baseline보다 3.1% 나쁨(critical path가 `x_r
 - 동일 조건 벤치마크(60빔·500파티클 확장, ZERO와 직접 비교) — 다음 세션
   최우선 후보, 이번 ROM 실험보다 스코프가 훨씬 큼
 
+## 2026-09-02 (이어서10) — 동일 조건 벤치마크 첫 실측: ECHO가 이길 수도 있지만 조건이 많이 낙관적
+
+**ZERO 쪽(range_libc) 실측**: `particle_filter.py`에 이미 있던 `fine_timing`
+진단 훅을 로컬에서 켜고(임시, 측정 직후 되돌림 — 아래 사고 기록 참고)
+표준 스모크 테스트(changwon, `sim:=true planner:=none controller:=pure_pursuit`)
+로 145 샘플 실측. `range_method="rm"`(ECHO와 같은 레이마칭 계열),
+`num_rays=60`, `max_particles=500` — 둘 다 ECHO 목표치와 정확히 일치:
+ray casting 평균 1.294ms, sensor eval 평균 0.082ms, `sensor_model()` 전체
+평균 1.428ms(WSL 노트북 CPU, **Jetson 실측 아님**).
+
+**🔴 사고: `~/zero/src`에서 되돌리다가 관련 없는 로컬 변경사항을 실수로 날림.**
+`fine_timing` 하나만 고쳤다가 `git checkout -- config/localize.yaml ...`으로
+되돌렸는데, 그 파일엔 **이미 커밋 안 된 `max_particles: 500`(원래 4000,
+2026-08-07에 opponent_perception CPU 병목 테스트용으로 임시 변경된 값) 오버라이드가
+있었음** — 되돌리기 전에 `git status`/`git diff`로 "지금 내가 되돌리려는 게
+정확히 뭔지" 확인을 안 하고 통째로 checkout해서 그것까지 같이 날아감. 다행히
+**원격 저장소는 전혀 안 건드림(commit/push 없음, 로컬 워킹트리만 영향)** —
+사용자에게 즉시 보고, 500/4000 중 어느 쪽으로 둘지 확인 대기 중(현재 4000,
+커밋된 원래 값). 교훈: 다음부턴 이런 임시 측정용 수정은 `git checkout --`
+대신 Edit으로 정확히 그 줄만 되돌릴 것 — 특히 남의(혹은 예전 세션의) 로컬
+미커밋 변경이 이미 있을 수 있는 저장소에서는 checkout 전에 diff부터 볼 것.
+
+**ECHO 쪽(60빔 확장) 실측**: RTL이 빔 개수에 파라미터화 안 돼있어 "빔
+시작을 몇 번 주느냐"로만 정해짐 — 재합성 없이 테스트벤치만 60빔으로 확장
+(`tools/gen_particle_scorer_60beam_test.py`, `tb_particle_scorer_60beam.v`,
+`tb_particle_scorer_oct_arb_60beam.v`, 기존 SEARCH_CENTERS 8개 그대로 재사용).
+전부 PASS(기존 8빔 오라클과 같은 시작점이라 particle0/p60_0 weight 교차검증도
+됨). 실측 사이클(oct_arb post-synth WNS -2.438ns → 달성 가능 클럭 ≈80.4MHz
+로 환산):
+- 파티클 1개, 60빔: 959 사이클 = 11.93μs
+- 파티클 8개 동시(arbiter8), 60빔: 1300 사이클 = 16.17μs (1개 대비 1.36배
+  — 8배 병렬인데 36%만 손해, 여전히 효율적인 시분할)
+
+**500파티클 추정(⚠️ 측정 아니라 계산)**: 8개씩 63배치를 순차로 돌린다고
+가정 → 63 × 16.17μs ≈ **1.02ms**. 배치 간 파이프라이닝(레이마칭은 겹칠 수
+있음)은 미설계라 이 값은 보수적 추정.
+
+**비교**: ECHO 추정 1.02ms vs ZERO 실측 1.428ms → **이 조건에서 ECHO가 약
+1.4배 빠를 수 있음** — 이 프로젝트에서 "이길 수도 있다"는 첫 정량적 신호.
+**단, 8-way 병렬화가 없으면(파티클을 하나씩 순차 처리) 959사이클×500 ≈
+5.97ms로 ZERO보다 4배 이상 느림** — arbiter 기반 병렬화가 이득이 아니라
+"경쟁력을 갖추기 위한 필수조건"이라는 걸 숫자로 확인한 게 이번 세션의
+가장 중요한 발견.
+
+**남은 격차(정직하게, 우선순위순)**:
+1. 위 1.428ms는 Jetson이 아니라 이 노트북 CPU 실측 — Jetson은 더 느릴 걸로
+   예상되지만(그러면 ECHO가 더 유리해짐) 측정 안 함.
+2. ECHO의 500파티클 값은 8파티클 배치 실측을 63배 곱한 추정이지, 실제
+   500파티클 풀 스트리밍 시뮬레이션이 아님.
+3. 삼각함수(cos/sin) 계산 비용 여전히 미측정 — `particle_scorer`가 빔마다
+   `dx,dy`를 직접 받아서, Jetson이 파티클×60빔마다 이걸 미리 계산해줘야
+   하는 비용이 위 range_libc 실측엔 안 잡혀있음(range_libc는 pose+각도만
+   받아 내부에서 좌표변환).
+4. Jetson↔FPGA 통신 비용 여전히 완전 미정.
+5. 정확도 비교(weight 순위/ESS/localization 오차) 여전히 안 함.
+
+**결론(정직하게)**: 순수 계산 사이클만 보면 ECHO가 이길 가능성을 처음으로
+숫자로 보여줬지만, "Jetson이 아닌 노트북과, 통신비용 0원인 FPGA"를 비교한
+낙관적 상한에 가까움 — 위 3·4번이 실측에 들어가면 이득이 줄어들 것이
+거의 확실. `docs/problem_statement.md`의 "2026-09-02 추가2" 섹션에 전체
+내용 반영.
+
+**이번에 건드린 파일(ECHO, 커밋 대상)**: `tools/gen_particle_scorer_60beam_test.py`
+(신규), `tb/tb_particle_scorer_60beam.v` + `tb/tb_particle_scorer_oct_arb_60beam.v`
+(신규), `sim/p60_{0..7}_{dx,dy,r,expected,x0y0}.hex`(신규, 40개),
+`docs/problem_statement.md`(갱신).
+**ZERO 쪽(`~/zero/src`)은 전부 로컬 전용, 위 사고 기록대로 최종적으로는
+원복됨(fine_timing=0, max_particles는 사용자 확인 대기 중) — git 변경 없음.**
+
+**다음 세션 우선순위**:
+1. `max_particles` 500/4000 여부 사용자와 확정
+2. 500(또는 4000) 파티클 풀 스트리밍 ECHO 테스트벤치(추정 아닌 실측)
+3. 삼각함수 계산 비용 측정(Jetson 쪽 전처리 비용)
+4. 정확도 비교(weight 순위/ESS) — 이번 세션 5단계 계획의 4번
+5. Jetson↔FPGA 통신 비용 설계·측정 — 5단계 계획의 5번
+
