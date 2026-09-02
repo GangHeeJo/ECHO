@@ -1254,3 +1254,54 @@ dx,dy)와 8-way(온칩 dgen, θ wrap 전/후)를 LUT/BRAM/DSP/WNS로 한 표에
 2. 실물(진짜 Jetson, 진짜 FPGA 보드, 진짜 통신 링크)이 생기면 위 추정치들
    전부 실측으로 교체 — 이게 남은 유일한 진짜 격차.
 
+## 2026-09-02 (이어서13) — cocotb 검증 환경 구축: 실제 데드락 버그를 랜덤화 회귀 테스트로 재확인
+
+**배경**: 이번 세션 내내 쓴 검증 방식(파이썬으로 정답지 hex 파일을 미리
+만들고 Verilog 테스트벤치가 `$readmemh`로 읽어 비교)은 정확하지만 모든
+케이스가 사전에 고정됨 — 랜덤화·경계조건 자동 탐색은 손으로 케이스를
+늘리는 수밖에 없었음. `verify/`에 [cocotb](https://www.cocotb.org/)(파이썬이
+직접 DUT를 구동·검사하는 업계 표준 프레임워크, 2.0.1) 기반 새 검증
+환경을 만듦 — 이 프로젝트에 처음 도입.
+
+**설치·환경 이슈(cocotb 2.0 API 변화 대응)**: `pip install cocotb`로
+설치. `cocotb.runner`가 `cocotb_tools.runner`로 이동, `Timer(..., units=)`
+가 `unit=`으로 개명, `cocotb.result.SimTimeoutError`가
+`cocotb.triggers.SimTimeoutError`로 이동 — 전부 겪고 고침. `angle_wrap.v`
+에 `timescale`이 없어 기본 정밀도로는 `Timer(1, unit="ns")`도 못 표현하는
+에러가 나서 `runner.build(timescale=('1ns','1ps'))`로 명시.
+
+**`test_angle_wrap.py`**: 무작위 3000케이스 + 경계 9케이스(정확히 ±π,
+±π/2, wrap이 딱 걸리는 극단값 등) — 순수 정수 연산이라 비트 단위 완전
+일치 기대, 3000/3000 + 9/9 전부 통과. cocotb+Icarus 플로우가 실제로
+동작하는지 확인하는 첫 단계.
+
+**`test_particle_scorer_dgen_arb.py` — 이번 세션 핵심 성과**: 앞서 실제로
+찾아 고쳤던 데드락 버그(가변 길이 대기 state에서 `beam_start` 펄스를
+놓치는 레이스)를 정확히 겨냥한 회귀 테스트. `beam_start`(외부 r_obs 공급)
+타이밍을 빔마다 0~5클럭 무작위 지연으로 주면서 실제 ZERO 파티클 8개를
+반복 처리 — 타임아웃(20000사이클)으로 데드락 여부 확인, weight는
+`bench/cordic_recompute_001.npz`(RTL의 CORDIC을 비트단위 재현한 파이썬
+모델) 기준값과 정확히 일치해야 함. **다른 시드 2개로 전부 통과**(8/8
+파티클, 데드락 0건, weight 전부 정확) — 1차 구현이 정확히 이 타이밍
+패턴에서 멈췄던 것과 대조.
+
+**과정에서 겪은 실수(그대로 기록)**: 처음엔 `weight_o`를 읽으면 "non-0/1
+값(X) 포함이라 int 변환 불가" 에러가 났음 — 원인은 `table_data`(공유
+table_mem에서 와야 하는 입력)를 실제 `table_mem`에 안 붙이고 테스트했기
+때문(연결 안 한 입력은 계속 X). `tb_wrapper_dgen_arb.v`(테스트 전용
+하네스, `particle_scorer_dgen_arb`+`table_mem`+`gnt=1` 고정)를 만들어
+해결 — "모듈 단독 테스트는 의존성을 다 붙여야지 그냥 떼어놓으면 안
+된다"는, 사소하지만 실제로 겪은 교훈.
+
+**이번에 건드린 파일(전부 커밋 대상)**: `verify/{README.md, .gitignore,
+test_angle_wrap.py, run_angle_wrap.py, test_particle_scorer_dgen_arb.py,
+run_particle_scorer_dgen_arb.py, tb_wrapper_dgen_arb.v}` + `sim/`에서
+복사해온 hex 픽스처들(cocotb의 작업 디렉터리가 `verify/`라 `$readmemh`
+상대경로 때문에 필요).
+
+**남은 것(verify/README.md에도 기록)**: direction_gen/CORDIC 자체의
+랜덤화 회귀(현재는 angle_wrap만), arbiter8의 fairness/starvation 무작위
+스트레스 테스트, ray_march_edt 경계조건(맵 가장자리, max-range 빔)
+전용 테스트, req/gnt·beam_start/beam_done 핸드셰이크 프로토콜을 매 클럭
+자동 검증하는 assertion/monitor.
+
