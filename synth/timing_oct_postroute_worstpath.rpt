@@ -1,0 +1,390 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Wed Sep  2 10:28:25 2026
+| Host         : BOOK-S5JNKNEIOB running 64-bit major release  (build 9200)
+| Command      : report_timing -delay_type max -max_paths 5 -file timing_oct_postroute_worstpath.rpt
+| Design       : particle_scorer_oct_arb
+| Device       : 7a35ti-csg324
+| Speed File   : -1L  PRODUCTION 1.23 2018-06-13
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -2.653ns  (required time - arrival time)
+  Source:                 u_scorer2/u_ray_march/y_reg[13]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer2/u_ray_march/y_reg[13]/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.359ns  (logic 3.244ns (26.247%)  route 9.115ns (73.753%))
+  Logic Levels:           14  (CARRY4=3 LUT4=2 LUT6=7 MUXF7=2)
+  Clock Path Skew:        -0.049ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.924ns = ( 10.924 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.973ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1545, unset)         0.973     0.973    u_scorer2/u_ray_march/clk
+    SLICE_X8Y17          FDCE                                         r  u_scorer2/u_ray_march/y_reg[13]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X8Y17          FDCE (Prop_fdce_C_Q)         0.518     1.491 f  u_scorer2/u_ray_march/y_reg[13]/Q
+                         net (fo=6, routed)           0.858     2.349    u_scorer2/u_ray_march/y_reg[13]
+    SLICE_X10Y18         LUT6 (Prop_lut6_I0_O)        0.124     2.473 f  u_scorer2/u_ray_march/running_i_4__1/O
+                         net (fo=60, routed)          0.655     3.128    u_scorer2/u_ray_march/running_i_4__1_n_0
+    SLICE_X9Y20          LUT6 (Prop_lut6_I5_O)        0.124     3.252 f  u_scorer2/u_ray_march/running_i_2__1/O
+                         net (fo=310, routed)         1.430     4.682    u_scorer2/u_ray_march/running_i_2__1_n_0
+    SLICE_X6Y15          LUT4 (Prop_lut4_I1_O)        0.124     4.806 f  u_scorer2/u_ray_march/x[0]_i_392__1/O
+                         net (fo=3, routed)           0.970     5.776    u_scorer2/u_ray_march/x[0]_i_392__1_n_0
+    SLICE_X12Y16         LUT4 (Prop_lut4_I0_O)        0.124     5.900 f  u_scorer2/u_ray_march/x[0]_i_1139__1/O
+                         net (fo=1, routed)           0.670     6.570    u_scorer2/u_ray_march/x[0]_i_1139__1_n_0
+    SLICE_X12Y16         LUT6 (Prop_lut6_I2_O)        0.124     6.694 f  u_scorer2/u_ray_march/x[0]_i_757__1/O
+                         net (fo=1, routed)           0.000     6.694    u_scorer2/u_ray_march/x[0]_i_757__1_n_0
+    SLICE_X12Y16         MUXF7 (Prop_muxf7_I0_O)      0.209     6.903 f  u_scorer2/u_ray_march/x_reg[0]_i_339__1/O
+                         net (fo=1, routed)           0.804     7.707    u_scorer2/u_ray_march/x_reg[0]_i_339__1_n_0
+    SLICE_X6Y16          LUT6 (Prop_lut6_I1_O)        0.297     8.004 f  u_scorer2/u_ray_march/x[0]_i_135__1/O
+                         net (fo=1, routed)           0.687     8.691    u_scorer2/u_ray_march/x[0]_i_135__1_n_0
+    SLICE_X9Y15          LUT6 (Prop_lut6_I4_O)        0.124     8.815 f  u_scorer2/u_ray_march/x[0]_i_60__1/O
+                         net (fo=1, routed)           0.000     8.815    u_scorer2/u_ray_march/x[0]_i_60__1_n_0
+    SLICE_X9Y15          MUXF7 (Prop_muxf7_I1_O)      0.217     9.032 f  u_scorer2/u_ray_march/x_reg[0]_i_33__1/O
+                         net (fo=3, routed)           0.811     9.843    u_scorer2/u_ray_march/x_reg[0]_i_33__1_n_0
+    SLICE_X8Y14          LUT6 (Prop_lut6_I5_O)        0.299    10.142 r  u_scorer2/u_ray_march/x[0]_i_14__1/O
+                         net (fo=60, routed)          1.139    11.281    u_scorer2/u_ray_march/x[0]_i_14__1_n_0
+    SLICE_X8Y13          LUT6 (Prop_lut6_I0_O)        0.124    11.405 r  u_scorer2/u_ray_march/y[4]_i_2__1/O
+                         net (fo=1, routed)           0.608    12.013    u_scorer2/u_ray_march/y[4]_i_2__1_n_0
+    SLICE_X10Y14         CARRY4 (Prop_carry4_DI[3]_CO[3])
+                                                      0.396    12.409 r  u_scorer2/u_ray_march/y_reg[4]_i_1__1/CO[3]
+                         net (fo=1, routed)           0.000    12.409    u_scorer2/u_ray_march/y_reg[4]_i_1__1_n_0
+    SLICE_X10Y15         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.117    12.526 r  u_scorer2/u_ray_march/y_reg[8]_i_1__1/CO[3]
+                         net (fo=1, routed)           0.000    12.526    u_scorer2/u_ray_march/y_reg[8]_i_1__1_n_0
+    SLICE_X10Y16         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.323    12.849 r  u_scorer2/u_ray_march/y_reg[12]_i_1__1/O[1]
+                         net (fo=1, routed)           0.483    13.332    u_scorer2/u_ray_march/y_reg[12]_i_1__1_n_6
+    SLICE_X8Y17          FDCE                                         r  u_scorer2/u_ray_march/y_reg[13]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=1545, unset)         0.924    10.924    u_scorer2/u_ray_march/clk
+    SLICE_X8Y17          FDCE                                         r  u_scorer2/u_ray_march/y_reg[13]/C
+                         clock pessimism              0.000    10.924    
+                         clock uncertainty           -0.035    10.889    
+    SLICE_X8Y17          FDCE (Setup_fdce_C_D)       -0.210    10.679    u_scorer2/u_ray_march/y_reg[13]
+  -------------------------------------------------------------------
+                         required time                         10.679    
+                         arrival time                         -13.332    
+  -------------------------------------------------------------------
+                         slack                                 -2.653    
+
+Slack (VIOLATED) :        -2.643ns  (required time - arrival time)
+  Source:                 u_scorer6/u_ray_march/y_reg[14]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer6/u_ray_march/x_reg[9]_rep__0/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.311ns  (logic 2.553ns (20.738%)  route 9.758ns (79.262%))
+  Logic Levels:           13  (CARRY4=2 LUT3=2 LUT5=1 LUT6=8)
+  Clock Path Skew:        -0.049ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.924ns = ( 10.924 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.973ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1545, unset)         0.973     0.973    u_scorer6/u_ray_march/clk
+    SLICE_X44Y16         FDCE                                         r  u_scorer6/u_ray_march/y_reg[14]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X44Y16         FDCE (Prop_fdce_C_Q)         0.456     1.429 f  u_scorer6/u_ray_march/y_reg[14]/Q
+                         net (fo=5, routed)           0.813     2.242    u_scorer6/u_ray_march/y_reg[14]
+    SLICE_X44Y16         LUT6 (Prop_lut6_I1_O)        0.124     2.366 f  u_scorer6/u_ray_march/running_i_4__5/O
+                         net (fo=60, routed)          0.887     3.253    u_scorer6/u_ray_march/running_i_4__5_n_0
+    SLICE_X48Y15         LUT3 (Prop_lut3_I1_O)        0.124     3.377 r  u_scorer6/u_ray_march/x[0]_i_371__5/O
+                         net (fo=118, routed)         1.435     4.812    u_scorer6/u_ray_march/x[0]_i_371__5_n_0
+    SLICE_X62Y15         LUT6 (Prop_lut6_I0_O)        0.124     4.936 r  u_scorer6/u_ray_march/x[0]_i_855__5/O
+                         net (fo=4, routed)           1.001     5.937    u_scorer6/u_ray_march/x[0]_i_855__5_n_0
+    SLICE_X61Y13         LUT6 (Prop_lut6_I2_O)        0.124     6.061 r  u_scorer6/u_ray_march/x[0]_i_549__5/O
+                         net (fo=1, routed)           0.670     6.731    u_scorer6/u_ray_march/x[0]_i_549__5_n_0
+    SLICE_X61Y13         LUT5 (Prop_lut5_I0_O)        0.124     6.855 r  u_scorer6/u_ray_march/x[0]_i_242__5/O
+                         net (fo=1, routed)           0.640     7.495    u_scorer6/u_ray_march/x[0]_i_242__5_n_0
+    SLICE_X59Y13         LUT6 (Prop_lut6_I3_O)        0.124     7.619 r  u_scorer6/u_ray_march/x[0]_i_102__5/O
+                         net (fo=2, routed)           0.682     8.301    u_scorer6/u_ray_march/x[0]_i_102__5_n_0
+    SLICE_X57Y14         LUT3 (Prop_lut3_I1_O)        0.124     8.425 r  u_scorer6/u_ray_march/x[0]_i_141__5/O
+                         net (fo=1, routed)           0.414     8.839    u_scorer6/u_ray_march/x[0]_i_141__5_n_0
+    SLICE_X55Y14         LUT6 (Prop_lut6_I1_O)        0.124     8.963 r  u_scorer6/u_ray_march/x[0]_i_64__5/O
+                         net (fo=1, routed)           0.618     9.581    u_scorer6/u_ray_march/x[0]_i_64__5_n_0
+    SLICE_X52Y14         LUT6 (Prop_lut6_I5_O)        0.124     9.705 r  u_scorer6/u_ray_march/x[0]_i_34__5/O
+                         net (fo=32, routed)          0.770    10.475    u_scorer6/u_ray_march/x[0]_i_34__5_n_0
+    SLICE_X47Y12         LUT6 (Prop_lut6_I4_O)        0.124    10.599 r  u_scorer6/u_ray_march/x[4]_i_12__5/O
+                         net (fo=4, routed)           0.871    11.470    u_scorer6/u_ray_march/x[4]_i_12__5_n_0
+    SLICE_X46Y12         LUT6 (Prop_lut6_I5_O)        0.124    11.594 r  u_scorer6/u_ray_march/x[4]_i_2__5/O
+                         net (fo=1, routed)           0.629    12.223    u_scorer6/u_ray_march/x[4]_i_2__5_n_0
+    SLICE_X47Y14         CARRY4 (Prop_carry4_DI[3]_CO[3])
+                                                      0.385    12.608 r  u_scorer6/u_ray_march/x_reg[4]_i_1__5/CO[3]
+                         net (fo=1, routed)           0.000    12.608    u_scorer6/u_ray_march/x_reg[4]_i_1__5_n_0
+    SLICE_X47Y15         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.348    12.956 r  u_scorer6/u_ray_march/x_reg[8]_i_1__5/O[1]
+                         net (fo=3, routed)           0.328    13.284    u_scorer6/u_ray_march/x_reg[8]_i_1__5_n_6
+    SLICE_X44Y15         FDCE                                         r  u_scorer6/u_ray_march/x_reg[9]_rep__0/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=1545, unset)         0.924    10.924    u_scorer6/u_ray_march/clk
+    SLICE_X44Y15         FDCE                                         r  u_scorer6/u_ray_march/x_reg[9]_rep__0/C
+                         clock pessimism              0.000    10.924    
+                         clock uncertainty           -0.035    10.889    
+    SLICE_X44Y15         FDCE (Setup_fdce_C_D)       -0.248    10.641    u_scorer6/u_ray_march/x_reg[9]_rep__0
+  -------------------------------------------------------------------
+                         required time                         10.641    
+                         arrival time                         -13.284    
+  -------------------------------------------------------------------
+                         slack                                 -2.643    
+
+Slack (VIOLATED) :        -2.631ns  (required time - arrival time)
+  Source:                 u_scorer6/u_ray_march/y_reg[14]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer6/u_ray_march/x_reg[9]_rep/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.311ns  (logic 2.553ns (20.738%)  route 9.758ns (79.262%))
+  Logic Levels:           13  (CARRY4=2 LUT3=2 LUT5=1 LUT6=8)
+  Clock Path Skew:        -0.049ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.924ns = ( 10.924 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.973ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1545, unset)         0.973     0.973    u_scorer6/u_ray_march/clk
+    SLICE_X44Y16         FDCE                                         r  u_scorer6/u_ray_march/y_reg[14]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X44Y16         FDCE (Prop_fdce_C_Q)         0.456     1.429 f  u_scorer6/u_ray_march/y_reg[14]/Q
+                         net (fo=5, routed)           0.813     2.242    u_scorer6/u_ray_march/y_reg[14]
+    SLICE_X44Y16         LUT6 (Prop_lut6_I1_O)        0.124     2.366 f  u_scorer6/u_ray_march/running_i_4__5/O
+                         net (fo=60, routed)          0.887     3.253    u_scorer6/u_ray_march/running_i_4__5_n_0
+    SLICE_X48Y15         LUT3 (Prop_lut3_I1_O)        0.124     3.377 r  u_scorer6/u_ray_march/x[0]_i_371__5/O
+                         net (fo=118, routed)         1.435     4.812    u_scorer6/u_ray_march/x[0]_i_371__5_n_0
+    SLICE_X62Y15         LUT6 (Prop_lut6_I0_O)        0.124     4.936 r  u_scorer6/u_ray_march/x[0]_i_855__5/O
+                         net (fo=4, routed)           1.001     5.937    u_scorer6/u_ray_march/x[0]_i_855__5_n_0
+    SLICE_X61Y13         LUT6 (Prop_lut6_I2_O)        0.124     6.061 r  u_scorer6/u_ray_march/x[0]_i_549__5/O
+                         net (fo=1, routed)           0.670     6.731    u_scorer6/u_ray_march/x[0]_i_549__5_n_0
+    SLICE_X61Y13         LUT5 (Prop_lut5_I0_O)        0.124     6.855 r  u_scorer6/u_ray_march/x[0]_i_242__5/O
+                         net (fo=1, routed)           0.640     7.495    u_scorer6/u_ray_march/x[0]_i_242__5_n_0
+    SLICE_X59Y13         LUT6 (Prop_lut6_I3_O)        0.124     7.619 r  u_scorer6/u_ray_march/x[0]_i_102__5/O
+                         net (fo=2, routed)           0.682     8.301    u_scorer6/u_ray_march/x[0]_i_102__5_n_0
+    SLICE_X57Y14         LUT3 (Prop_lut3_I1_O)        0.124     8.425 r  u_scorer6/u_ray_march/x[0]_i_141__5/O
+                         net (fo=1, routed)           0.414     8.839    u_scorer6/u_ray_march/x[0]_i_141__5_n_0
+    SLICE_X55Y14         LUT6 (Prop_lut6_I1_O)        0.124     8.963 r  u_scorer6/u_ray_march/x[0]_i_64__5/O
+                         net (fo=1, routed)           0.618     9.581    u_scorer6/u_ray_march/x[0]_i_64__5_n_0
+    SLICE_X52Y14         LUT6 (Prop_lut6_I5_O)        0.124     9.705 r  u_scorer6/u_ray_march/x[0]_i_34__5/O
+                         net (fo=32, routed)          0.770    10.475    u_scorer6/u_ray_march/x[0]_i_34__5_n_0
+    SLICE_X47Y12         LUT6 (Prop_lut6_I4_O)        0.124    10.599 r  u_scorer6/u_ray_march/x[4]_i_12__5/O
+                         net (fo=4, routed)           0.871    11.470    u_scorer6/u_ray_march/x[4]_i_12__5_n_0
+    SLICE_X46Y12         LUT6 (Prop_lut6_I5_O)        0.124    11.594 r  u_scorer6/u_ray_march/x[4]_i_2__5/O
+                         net (fo=1, routed)           0.629    12.223    u_scorer6/u_ray_march/x[4]_i_2__5_n_0
+    SLICE_X47Y14         CARRY4 (Prop_carry4_DI[3]_CO[3])
+                                                      0.385    12.608 r  u_scorer6/u_ray_march/x_reg[4]_i_1__5/CO[3]
+                         net (fo=1, routed)           0.000    12.608    u_scorer6/u_ray_march/x_reg[4]_i_1__5_n_0
+    SLICE_X47Y15         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.348    12.956 r  u_scorer6/u_ray_march/x_reg[8]_i_1__5/O[1]
+                         net (fo=3, routed)           0.328    13.284    u_scorer6/u_ray_march/x_reg[8]_i_1__5_n_6
+    SLICE_X44Y15         FDCE                                         r  u_scorer6/u_ray_march/x_reg[9]_rep/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=1545, unset)         0.924    10.924    u_scorer6/u_ray_march/clk
+    SLICE_X44Y15         FDCE                                         r  u_scorer6/u_ray_march/x_reg[9]_rep/C
+                         clock pessimism              0.000    10.924    
+                         clock uncertainty           -0.035    10.889    
+    SLICE_X44Y15         FDCE (Setup_fdce_C_D)       -0.236    10.653    u_scorer6/u_ray_march/x_reg[9]_rep
+  -------------------------------------------------------------------
+                         required time                         10.653    
+                         arrival time                         -13.284    
+  -------------------------------------------------------------------
+                         slack                                 -2.631    
+
+Slack (VIOLATED) :        -2.613ns  (required time - arrival time)
+  Source:                 u_scorer2/u_ray_march/y_reg[13]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer2/u_ray_march/y_reg[8]_rep/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.313ns  (logic 3.036ns (24.656%)  route 9.277ns (75.344%))
+  Logic Levels:           13  (CARRY4=2 LUT4=2 LUT6=7 MUXF7=2)
+  Clock Path Skew:        -0.049ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.924ns = ( 10.924 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.973ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1545, unset)         0.973     0.973    u_scorer2/u_ray_march/clk
+    SLICE_X8Y17          FDCE                                         r  u_scorer2/u_ray_march/y_reg[13]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X8Y17          FDCE (Prop_fdce_C_Q)         0.518     1.491 f  u_scorer2/u_ray_march/y_reg[13]/Q
+                         net (fo=6, routed)           0.858     2.349    u_scorer2/u_ray_march/y_reg[13]
+    SLICE_X10Y18         LUT6 (Prop_lut6_I0_O)        0.124     2.473 f  u_scorer2/u_ray_march/running_i_4__1/O
+                         net (fo=60, routed)          0.655     3.128    u_scorer2/u_ray_march/running_i_4__1_n_0
+    SLICE_X9Y20          LUT6 (Prop_lut6_I5_O)        0.124     3.252 f  u_scorer2/u_ray_march/running_i_2__1/O
+                         net (fo=310, routed)         1.430     4.682    u_scorer2/u_ray_march/running_i_2__1_n_0
+    SLICE_X6Y15          LUT4 (Prop_lut4_I1_O)        0.124     4.806 f  u_scorer2/u_ray_march/x[0]_i_392__1/O
+                         net (fo=3, routed)           0.970     5.776    u_scorer2/u_ray_march/x[0]_i_392__1_n_0
+    SLICE_X12Y16         LUT4 (Prop_lut4_I0_O)        0.124     5.900 f  u_scorer2/u_ray_march/x[0]_i_1139__1/O
+                         net (fo=1, routed)           0.670     6.570    u_scorer2/u_ray_march/x[0]_i_1139__1_n_0
+    SLICE_X12Y16         LUT6 (Prop_lut6_I2_O)        0.124     6.694 f  u_scorer2/u_ray_march/x[0]_i_757__1/O
+                         net (fo=1, routed)           0.000     6.694    u_scorer2/u_ray_march/x[0]_i_757__1_n_0
+    SLICE_X12Y16         MUXF7 (Prop_muxf7_I0_O)      0.209     6.903 f  u_scorer2/u_ray_march/x_reg[0]_i_339__1/O
+                         net (fo=1, routed)           0.804     7.707    u_scorer2/u_ray_march/x_reg[0]_i_339__1_n_0
+    SLICE_X6Y16          LUT6 (Prop_lut6_I1_O)        0.297     8.004 f  u_scorer2/u_ray_march/x[0]_i_135__1/O
+                         net (fo=1, routed)           0.687     8.691    u_scorer2/u_ray_march/x[0]_i_135__1_n_0
+    SLICE_X9Y15          LUT6 (Prop_lut6_I4_O)        0.124     8.815 f  u_scorer2/u_ray_march/x[0]_i_60__1/O
+                         net (fo=1, routed)           0.000     8.815    u_scorer2/u_ray_march/x[0]_i_60__1_n_0
+    SLICE_X9Y15          MUXF7 (Prop_muxf7_I1_O)      0.217     9.032 f  u_scorer2/u_ray_march/x_reg[0]_i_33__1/O
+                         net (fo=3, routed)           0.811     9.843    u_scorer2/u_ray_march/x_reg[0]_i_33__1_n_0
+    SLICE_X8Y14          LUT6 (Prop_lut6_I5_O)        0.299    10.142 r  u_scorer2/u_ray_march/x[0]_i_14__1/O
+                         net (fo=60, routed)          1.139    11.281    u_scorer2/u_ray_march/x[0]_i_14__1_n_0
+    SLICE_X8Y13          LUT6 (Prop_lut6_I0_O)        0.124    11.405 r  u_scorer2/u_ray_march/y[4]_i_2__1/O
+                         net (fo=1, routed)           0.608    12.013    u_scorer2/u_ray_march/y[4]_i_2__1_n_0
+    SLICE_X10Y14         CARRY4 (Prop_carry4_DI[3]_CO[3])
+                                                      0.396    12.409 r  u_scorer2/u_ray_march/y_reg[4]_i_1__1/CO[3]
+                         net (fo=1, routed)           0.000    12.409    u_scorer2/u_ray_march/y_reg[4]_i_1__1_n_0
+    SLICE_X10Y15         CARRY4 (Prop_carry4_CI_O[0])
+                                                      0.232    12.641 r  u_scorer2/u_ray_march/y_reg[8]_i_1__1/O[0]
+                         net (fo=3, routed)           0.645    13.286    u_scorer2/u_ray_march/y_reg[8]_i_1__1_n_7
+    SLICE_X10Y18         FDCE                                         r  u_scorer2/u_ray_march/y_reg[8]_rep/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=1545, unset)         0.924    10.924    u_scorer2/u_ray_march/clk
+    SLICE_X10Y18         FDCE                                         r  u_scorer2/u_ray_march/y_reg[8]_rep/C
+                         clock pessimism              0.000    10.924    
+                         clock uncertainty           -0.035    10.889    
+    SLICE_X10Y18         FDCE (Setup_fdce_C_D)       -0.216    10.673    u_scorer2/u_ray_march/y_reg[8]_rep
+  -------------------------------------------------------------------
+                         required time                         10.673    
+                         arrival time                         -13.286    
+  -------------------------------------------------------------------
+                         slack                                 -2.613    
+
+Slack (VIOLATED) :        -2.609ns  (required time - arrival time)
+  Source:                 u_scorer4/u_ray_march/x_reg[13]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_scorer4/u_ray_march/x_reg[13]/D
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.276ns  (logic 3.314ns (26.997%)  route 8.962ns (73.003%))
+  Logic Levels:           15  (CARRY4=3 LUT3=2 LUT5=1 LUT6=7 MUXF7=2)
+  Clock Path Skew:        -0.049ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.924ns = ( 10.924 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.973ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1545, unset)         0.973     0.973    u_scorer4/u_ray_march/clk
+    SLICE_X9Y49          FDCE                                         r  u_scorer4/u_ray_march/x_reg[13]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X9Y49          FDCE (Prop_fdce_C_Q)         0.456     1.429 f  u_scorer4/u_ray_march/x_reg[13]/Q
+                         net (fo=4, routed)           0.839     2.268    u_scorer4/u_ray_march/p_0_in[5]
+    SLICE_X11Y49         LUT5 (Prop_lut5_I0_O)        0.124     2.392 f  u_scorer4/u_ray_march/x[0]_i_409__3/O
+                         net (fo=56, routed)          0.983     3.375    u_scorer4/u_ray_march/x[0]_i_409__3_n_0
+    SLICE_X12Y50         LUT3 (Prop_lut3_I2_O)        0.124     3.499 r  u_scorer4/u_ray_march/x[0]_i_502__3/O
+                         net (fo=107, routed)         1.889     5.389    u_scorer4/u_ray_march/x[0]_i_502__3_n_0
+    SLICE_X2Y59          LUT6 (Prop_lut6_I0_O)        0.124     5.513 f  u_scorer4/u_ray_march/x[0]_i_1304__3/O
+                         net (fo=1, routed)           0.000     5.513    u_scorer4/u_ray_march/x[0]_i_1304__3_n_0
+    SLICE_X2Y59          MUXF7 (Prop_muxf7_I1_O)      0.214     5.727 f  u_scorer4/u_ray_march/x_reg[0]_i_1241__3/O
+                         net (fo=1, routed)           0.464     6.191    u_scorer4/u_ray_march/x_reg[0]_i_1241__3_n_0
+    SLICE_X2Y57          LUT6 (Prop_lut6_I0_O)        0.297     6.488 f  u_scorer4/u_ray_march/x[0]_i_1072__3/O
+                         net (fo=1, routed)           0.445     6.933    u_scorer4/u_ray_march/x[0]_i_1072__3_n_0
+    SLICE_X2Y55          LUT6 (Prop_lut6_I0_O)        0.124     7.057 f  u_scorer4/u_ray_march/x[0]_i_689__3/O
+                         net (fo=1, routed)           0.171     7.228    u_scorer4/u_ray_march/x[0]_i_689__3_n_0
+    SLICE_X2Y55          LUT3 (Prop_lut3_I1_O)        0.124     7.352 f  u_scorer4/u_ray_march/x[0]_i_298__3/O
+                         net (fo=1, routed)           0.780     8.133    u_scorer4/u_ray_march/x[0]_i_298__3_n_0
+    SLICE_X3Y52          LUT6 (Prop_lut6_I1_O)        0.124     8.257 f  u_scorer4/u_ray_march/x[0]_i_121__3/O
+                         net (fo=1, routed)           0.000     8.257    u_scorer4/u_ray_march/x[0]_i_121__3_n_0
+    SLICE_X3Y52          MUXF7 (Prop_muxf7_I0_O)      0.212     8.469 f  u_scorer4/u_ray_march/x_reg[0]_i_55__3/O
+                         net (fo=1, routed)           0.710     9.179    u_scorer4/u_ray_march/x_reg[0]_i_55__3_n_0
+    SLICE_X8Y51          LUT6 (Prop_lut6_I0_O)        0.299     9.478 f  u_scorer4/u_ray_march/x[0]_i_31__3/O
+                         net (fo=3, routed)           0.512     9.990    u_scorer4/u_ray_march/x[0]_i_31__3_n_0
+    SLICE_X9Y48          LUT6 (Prop_lut6_I3_O)        0.124    10.114 r  u_scorer4/u_ray_march/x[0]_i_14__3/O
+                         net (fo=60, routed)          1.078    11.192    u_scorer4/u_ray_march/x[0]_i_14__3_n_0
+    SLICE_X9Y45          LUT6 (Prop_lut6_I0_O)        0.124    11.316 r  u_scorer4/u_ray_march/x[4]_i_3__3/O
+                         net (fo=1, routed)           0.608    11.924    u_scorer4/u_ray_march/x[4]_i_3__3_n_0
+    SLICE_X10Y46         CARRY4 (Prop_carry4_DI[2]_CO[3])
+                                                      0.404    12.328 r  u_scorer4/u_ray_march/x_reg[4]_i_1__3/CO[3]
+                         net (fo=1, routed)           0.000    12.328    u_scorer4/u_ray_march/x_reg[4]_i_1__3_n_0
+    SLICE_X10Y47         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.117    12.445 r  u_scorer4/u_ray_march/x_reg[8]_i_1__3/CO[3]
+                         net (fo=1, routed)           0.000    12.445    u_scorer4/u_ray_march/x_reg[8]_i_1__3_n_0
+    SLICE_X10Y48         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.323    12.768 r  u_scorer4/u_ray_march/x_reg[12]_i_1__3/O[1]
+                         net (fo=1, routed)           0.480    13.249    u_scorer4/u_ray_march/x_reg[12]_i_1__3_n_6
+    SLICE_X9Y49          FDCE                                         r  u_scorer4/u_ray_march/x_reg[13]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  
+                                                      0.000    10.000 r  clk (IN)
+                         net (fo=1545, unset)         0.924    10.924    u_scorer4/u_ray_march/clk
+    SLICE_X9Y49          FDCE                                         r  u_scorer4/u_ray_march/x_reg[13]/C
+                         clock pessimism              0.000    10.924    
+                         clock uncertainty           -0.035    10.889    
+    SLICE_X9Y49          FDCE (Setup_fdce_C_D)       -0.249    10.640    u_scorer4/u_ray_march/x_reg[13]
+  -------------------------------------------------------------------
+                         required time                         10.640    
+                         arrival time                         -13.249    
+  -------------------------------------------------------------------
+                         slack                                 -2.609    
+
+
+
+
