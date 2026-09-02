@@ -1139,20 +1139,29 @@ WNS +4.119ns(양수! 100MHz를 여유 있게 통과)** — 곱셈기 없는 설�
 - `sim/{cordic_*.hex, cordic_full_test_*.hex, angle_wrap_test_*.hex, beam_angles.hex, direction_gen_test_*.hex, rf_b*_theta.hex}`
 - `synth/{synth_direction_gen.tcl, util_direction_gen.rpt, timing_direction_gen.rpt, synth_dgen_oct.tcl, util_dgen_oct.rpt, timing_dgen_oct.rpt, timing_dgen_oct_worstpath.rpt}`
 
+**✅ 정확도(ESS/순위) CORDIC 버전으로 재확인 완료**: `tools/gen_dgen_accuracy_test.py`
+— RTL의 CORDIC 알고리즘(N=16 반복, 같은 atan 테이블·X0·사분면접기)을
+파이썬 정수 연산으로 비트 단위로 재현해서 500파티클 전부 재계산.
+**교차검증**: 파티클0의 재현 weight가 **RTL 실측(-46170)과 정확히 일치**
+— 이 파이썬 모델이 하드웨어와 비트단위로 같다는 증거. **정확도는 CORDIC이나
+정확한 삼각함수나 사실상 동일**: Spearman 0.9979(동일), top10 겹침 1/10
+(동일), ESS 23.5% vs 63.5%(정확한 버전 23.4%, 오차범위 안) — **ESS 격차의
+원인이 CORDIC이 아니라는 게 확정됨**(원래부터 있던 Q9.8 양자화+march_edt
+근사 때문, 이번에 새로 추가된 문제 아님).
+
 **남은 것 / 다음 세션 우선순위**:
-1. **정확도(ESS/순위) CORDIC 버전으로 재확인** — 지금까지의 ESS 23.4%
-   vs 63.5% 비교는 "정확한 삼각함수+Q9.8 반올림" 기준이었지, CORDIC의
-   추가 ~1 LSB 오차까지 반영한 게 아님. 거의 같을 것으로 예상은 하지만
-   실제로 500개 전부 다시 계산해서 확인 안 함 — 다음 최우선.
-2. `theta`가 particle_start 시점에 이미 [-pi,pi] wrap돼있다는 전제 —
+1. `theta`가 particle_start 시점에 이미 [-pi,pi] wrap돼있다는 전제 —
    실제 particle_filter.py의 theta는 wrap 안 된 채로 누적됨(4.57rad·
    5.71rad 같은 값 실측). Jetson이든 FPGA든 어딘가에서 mod 2pi wrap을
    한 번 해줘야 함, 아직 이 파이프라인에 없음(지금 벤치마크는 파이썬
    쪽에서 미리 wrap해서 우회함 — RTL 자체엔 wrap 로직 없음, 실전 배포
    전 필요).
-3. Jetson↔FPGA 통신 비용(5단계 계획 마지막 항목) — 인터페이스가 "빔마다
+2. Jetson↔FPGA 통신 비용(5단계 계획 마지막 항목) — 인터페이스가 "빔마다
    dx,dy 스트리밍" 대신 "파티클 pose(x,y,theta)만 보내면 됨"으로 가벼워짐
    (60개 값 대신 1개) — 아직 실제 통신 시간 미측정.
-4. Jetson 아닌 실제 Jetson(또는 최소한 더 약한 CPU)에서 range_libc 재측정
+3. Jetson 아닌 실제 Jetson(또는 최소한 더 약한 CPU)에서 range_libc 재측정
    — 지금 1.428ms는 이 노트북 CPU 기준, 실제 배포 환경 비교는 아직.
+4. ESS 격차(23.5% vs 63.5%) 자체의 근본 원인 규명 — CORDIC 탓이 아님은
+   확정됐지만, 그럼 Q9.8 양자화/march_edt 근사 중 어느 쪽이 더 큰 기여를
+   하는지는 아직 분리 안 함(정밀도 실험으로 나눠볼 수 있음).
 
