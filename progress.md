@@ -1102,41 +1102,57 @@ WNS +4.119ns(양수! 100MHz를 여유 있게 통과)** — 곱셈기 없는 설�
 여러 번 나온 "양자화가 경계에서 결과를 바꾼다" 패턴과 같은 종류(새 버그
 계열 아님).
 
-**종합 경제성(정직하게, 8-way는 아직 미착수라 추정)**:
-| 구성 | FPGA만 | +Jetson 비용 | 합계 |
-|---|---|---|---|
-| 기존(외부 dx,dy) | 0.915ms | +0.782ms(dx,dy 전처리) | **1.697ms**(ZERO 대비 19% 느림) |
-| 신규(온칩 dgen, 추정) | ~1.629ms(1507×1.356 arb배율×63배치 추정) | +0ms(불필요해짐) | **~1.629ms**(ZERO 대비 ~14% 느림, 추정) |
+**🎉 8-way 확장 완료 + 실측으로 확정 — 이번 세션 처음으로 진짜 역전 확인**:
+`particle_scorer_dgen_arb.v`(단위 셀, req/gnt 중재) + `particle_scorer_dgen_oct_arb.v`
+(8-way, direction_gen 8개 복제 + table_mem 공유)를 만들고, 실제 ZERO
+파티클 500개(63배치×8, `rf_b*_theta.hex` 신규 — `gen_dgen_batch_theta.py`)
+로 실측:
 
-ZERO 실측 1.428ms. **Jetson 병목은 사라졌지만, 그 자리를 온칩 CORDIC 비용이
-일부 대신 차지해서 여전히 ZERO보다 느림** — 격차는 19%→14%로 줄었지만
-역전은 아직 아님. 위 신규 줄은 **8-way 버전을 아직 안 만들어서 추정치**
-(기존 8-way의 arb 오버헤드 비율 1.356배를 그대로 가져다 씀, 검증 안 됨) —
-다음 세션에서 `particle_scorer_dgen`을 8-way arbiter로 실제 확장해서
-진짜 숫자로 확인 필요.
+- **총 사이클: 97,865**(1507×1.356 arb배율 추정치 128,772보다 오히려
+  24% 적음 — 8개가 동시에 도니 프리페치가 겹칠 여유가 더 많았던 것으로
+  보임, 추정이 비관적이었다는 뜻이라 좋은 소식)
+- **8-way 통합 설계 post-route 완료**: WNS -2.992ns → **76.97MHz**(진짜
+  클럭, 기존 8-way 79.0MHz보다 약간 낮음 — direction_gen 8개 복제로
+  LUT가 55.16%→69.37%까지 늘면서 배선 혼잡이 조금 더 심해진 결과로 보임,
+  예상했던 리스크였음). **DSP 0/90(끝까지 유지), BRAM 39/50(78%, 불변)**.
+  크리티컬 패스는 여전히 `ray_march_edt`(`u_scorer6/y_reg`) — direction_gen
+  이 새 병목을 만들지 않음, 안심되는 결과.
+
+**최종 시간(실측 사이클 × 실측 클럭, 추정 아님)**: 97,865 × 12.992ns =
+**1.271ms**.
+
+| 구성 | 시간 | ZERO(1.428ms) 대비 |
+|---|---|---|
+| 기존(외부 dx,dy) | 1.697ms(0.915+0.782) | 19% 느림 |
+| 신규(온칩 dgen) | **1.271ms**(FPGA만, Jetson 비용 0) | **약 11% 빠름** |
+
+**ZERO 소프트웨어(WSL CPU 기준, 실측 1.428ms)보다 처음으로 빠른 결과가
+나옴** — 추정이 아니라 실제 파티클 500개, 실제 60빔, 실제 post-route
+합성 클럭으로 확인됨. 다만 여전히 남은 캐비엇: Jetson 아닌 노트북 CPU
+비교, 통신비용 미포함, 정확도(ESS) 아직 CORDIC 버전으로 재확인 안 함 —
+"이겼다"고 결론 내리기 전에 이 셋을 마저 봐야 함.
 
 **이번에 건드린 파일(전부 커밋 대상)**:
-- `rtl/{cordic_sincos.v, cordic_sincos_full.v, angle_wrap.v, direction_gen.v, particle_scorer_dgen.v}`
-- `tb/{tb_cordic_sincos.v, tb_cordic_sincos_full.v, tb_angle_wrap.v, tb_direction_gen.v, tb_particle_scorer_dgen.v}`
-- `tools/{gen_cordic_table.py, gen_cordic_full_table.py, gen_angle_wrap_table.py, gen_direction_gen_test.py}`
-- `sim/{cordic_*.hex, cordic_full_test_*.hex, angle_wrap_test_*.hex, beam_angles.hex, direction_gen_test_*.hex}`
-- `synth/{synth_direction_gen.tcl, util_direction_gen.rpt, timing_direction_gen.rpt}`
+- `rtl/{cordic_sincos.v, cordic_sincos_full.v, angle_wrap.v, direction_gen.v, particle_scorer_dgen.v, particle_scorer_dgen_arb.v, particle_scorer_dgen_oct_arb.v}`
+- `tb/{tb_cordic_sincos.v, tb_cordic_sincos_full.v, tb_angle_wrap.v, tb_direction_gen.v, tb_particle_scorer_dgen.v, tb_particle_scorer_dgen_oct_arb_realbatch.v}`
+- `tools/{gen_cordic_table.py, gen_cordic_full_table.py, gen_angle_wrap_table.py, gen_direction_gen_test.py, gen_dgen_batch_theta.py}`
+- `sim/{cordic_*.hex, cordic_full_test_*.hex, angle_wrap_test_*.hex, beam_angles.hex, direction_gen_test_*.hex, rf_b*_theta.hex}`
+- `synth/{synth_direction_gen.tcl, util_direction_gen.rpt, timing_direction_gen.rpt, synth_dgen_oct.tcl, util_dgen_oct.rpt, timing_dgen_oct.rpt, timing_dgen_oct_worstpath.rpt}`
 
 **남은 것 / 다음 세션 우선순위**:
-1. `particle_scorer_dgen`을 8-way arbiter로 확장(`particle_scorer_dgen_arb`
-   류) — direction_gen 8개 복제(자원은 저렴, 341LUT×8=2728만 추가) + 기존
-   `table_mem` 공유 그대로 — 진짜 500파티클 실측치 필요(위 표의 "추정"을
-   "실측"으로 바꾸는 게 최우선)
-2. 통합 설계 post-synth/post-route로 DSP=0·전체 WNS 확인 — direction_gen
-   단독은 여유(+4.119ns)였지만 ray_march_edt와 한 설계 안에 같이 들어가면
-   배선 혼잡이 늘어 WNS가 나빠질 가능성 있음(8-way 때 봤던 패턴)
-3. `theta`가 particle_start 시점에 이미 [-pi,pi] wrap돼있다는 전제 —
-   실제 particle_filter.py의 theta는 wrap 안 된 채로 누적됨(오늘 확인,
-   4.57rad·5.71rad 같은 값 실측) — Jetson이든 FPGA든 어딘가에서 mod 2pi
-   wrap을 한 번 해줘야 함, 아직 이 파이프라인에 없음
-4. 정확도(ESS/순위) 재확인 — direction_gen의 미세한 오차 특성이 예전
-   external-dx,dy 버전과 다를 수 있어 재측정 가치 있음
-5. Jetson↔FPGA 통신 비용(5단계 계획 마지막 항목) — 이제 "dx,dy 스트리밍"
-   대신 "particle pose(x,y,theta) + beam_id만 보내면 됨"으로 인터페이스가
-   훨씬 가벼워짐 — 이것도 이번 direction_gen의 부수적 이득으로 기록해둘 것
+1. **정확도(ESS/순위) CORDIC 버전으로 재확인** — 지금까지의 ESS 23.4%
+   vs 63.5% 비교는 "정확한 삼각함수+Q9.8 반올림" 기준이었지, CORDIC의
+   추가 ~1 LSB 오차까지 반영한 게 아님. 거의 같을 것으로 예상은 하지만
+   실제로 500개 전부 다시 계산해서 확인 안 함 — 다음 최우선.
+2. `theta`가 particle_start 시점에 이미 [-pi,pi] wrap돼있다는 전제 —
+   실제 particle_filter.py의 theta는 wrap 안 된 채로 누적됨(4.57rad·
+   5.71rad 같은 값 실측). Jetson이든 FPGA든 어딘가에서 mod 2pi wrap을
+   한 번 해줘야 함, 아직 이 파이프라인에 없음(지금 벤치마크는 파이썬
+   쪽에서 미리 wrap해서 우회함 — RTL 자체엔 wrap 로직 없음, 실전 배포
+   전 필요).
+3. Jetson↔FPGA 통신 비용(5단계 계획 마지막 항목) — 인터페이스가 "빔마다
+   dx,dy 스트리밍" 대신 "파티클 pose(x,y,theta)만 보내면 됨"으로 가벼워짐
+   (60개 값 대신 1개) — 아직 실제 통신 시간 미측정.
+4. Jetson 아닌 실제 Jetson(또는 최소한 더 약한 CPU)에서 range_libc 재측정
+   — 지금 1.428ms는 이 노트북 CPU 기준, 실제 배포 환경 비교는 아직.
 
